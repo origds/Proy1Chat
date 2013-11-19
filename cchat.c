@@ -13,71 +13,111 @@
 #define MAXDATASIZE 100   
 /* El número máximo de datos en bytes */
 
+void manejoSockets(char *mensaje) {
 
-int main(int argc, char *argv[])
-{
-   int fd, numbytes;       
-   /* ficheros descriptores */
+  int fd, numbytes;       
+  /* ficheros descriptores */
 
-   char buf[MAXDATASIZE];
-   /* en donde es almacenará el texto recibido */
+  char buf[MAXDATASIZE];
+  /* en donde es almacenará el texto recibido */
 
-   struct hostent *infoserver;         
-   /* estructura que recibirá información sobre el nodo remoto */
+  struct hostent *infoserver;         
+  /* estructura que recibirá información sobre el nodo remoto */
 
-   struct sockaddr_in servidor;  
-   /* información sobre la dirección del servidor */
+  struct sockaddr_in servidor;  
+  /* información sobre la dirección del servidor */
 
-   char * contenidoArchivo;
+  if ((infoserver=gethostbyname(IP))==NULL) {
+    /* llamada a gethostbyname() */
+    printf("gethostbyname() error\n");
+    exit(-1);
+  }
 
-   //llamada al menu
+  if ((fd=socket(AF_INET, SOCK_STREAM, 0))==-1){  
+    /* llamada a socket() */
+    printf("socket() error\n");
+    exit(-1);
+  }
 
-   menucchat(argc, argv);
+  servidor.sin_family = AF_INET;
+  printf("puertoooo: %d",puerto);
+  servidor.sin_port = htons(puerto);
+  /* htons() es necesaria nuevamente ;-o */
+  servidor.sin_addr = *((struct in_addr *)infoserver->h_addr);  
+  /*infoserver->h_addr pasa la información de ``*infoserver'' a "h_addr" */
+  bzero(&(servidor.sin_zero),8);
 
-   contenidoArchivo = lectorArchivo(archivo, contenidoArchivo);
-   //printf("Contenido archivooo: %s\n", contenidoArchivo);
+  if(connect(fd, (struct sockaddr *)&servidor,
+    sizeof(struct sockaddr))==-1){ 
+    /* llamada a connect() */
+    printf("connect() error\n");
+    exit(-1);
+  }
 
-   if ((infoserver=gethostbyname(IP))==NULL) {
-      /* llamada a gethostbyname() */
-      printf("gethostbyname() error\n");
-      exit(-1);
-   }
+  send(fd,mensaje,strlen(mensaje),0); 
+    /* envia mensaje con el contenido del archivo o el comando al servidor */
 
-   if ((fd=socket(AF_INET, SOCK_STREAM, 0))==-1){  
-      /* llamada a socket() */
-      printf("socket() error\n");
-      exit(-1);
-   }
+  if ((numbytes=recv(fd,buf,MAXDATASIZE,0)) == -1){  
+    /* llamada a recv() */
+    printf("Error en recv() \n");
+    exit(-1);
+  }
 
-   servidor.sin_family = AF_INET;
-   printf("puertoooo: %d",puerto);
-   servidor.sin_port = htons(puerto);
-   /* htons() es necesaria nuevamente ;-o */
-   servidor.sin_addr = *((struct in_addr *)infoserver->h_addr);  
-   /*infoserver->h_addr pasa la información de ``*infoserver'' a "h_addr" */
-   bzero(&(servidor.sin_zero),8);
+  buf[numbytes]='\0';
 
-   if(connect(fd, (struct sockaddr *)&servidor,
-      sizeof(struct sockaddr))==-1){ 
-      /* llamada a connect() */
-      printf("connect() error\n");
-      exit(-1);
-   }
+  printf("Mensaje del Servidor: %s\n",buf); 
+  /* muestra el mensaje de bienvenida del servidor =) */
 
-   send(fd,contenidoArchivo,strlen(contenidoArchivo),0); 
-      /* mensaje con el contenido del archivo al servidor */
+  close(fd);   /* cerramos fd =) */
 
-   if ((numbytes=recv(fd,buf,MAXDATASIZE,0)) == -1){  
-      /* llamada a recv() */
-      printf("Error en recv() \n");
-      exit(-1);
-   }
+} 
 
-   buf[numbytes]='\0';
 
-   printf("Mensaje del Servidor: %s\n",buf); 
-   /* muestra el mensaje de bienvenida del servidor =) */
 
-   close(fd);   /* cerramos fd =) */
+int main(int argc, char *argv[]) {
+
+  char * contenidoArchivo;
+
+  //Llamada al menu
+  menucchat(argc, argv);
+
+  // Si hay un archivo de comando es leido
+  if (archivo!=NULL) {
+      contenidoArchivo = lectorArchivo(archivo, contenidoArchivo);
+      printf("Contenido archivooo: %s\n", contenidoArchivo);
+      //llamada al procedimiento que creara el socket
+      //manejoSockets();
+      //llamada al procedimiento que enviara el archivo con el mensaje
+      // del archivo     
+      manejoSockets(contenidoArchivo);
+  }
+
+  //FALTA VERIFICAR QUE SI LA ULTIMA LINEA DEL ARCHIVO ES fue ENTONCES NO
+  // DEBE PEDIR COMANDOS POR CONSOLA
+   
+
+  //Para leer comandos por consola
+  while (1) {
+    char * comando;
+    printf("Escriba el comando que desea utilizar:\n");
+    scanf("%s", comando);
+    printf("comando %s\n", comando);
+    if (strcmp(comando, "fue")==0) {
+      return(0);
+    } else {
+      //PREGUNTA!! CAPAZ MANEJO SOCKET HAY QUE SEPARARLO EN DOS PORQUE EN 
+      //MANEJO SOCKET PODEMOS DEJAR SOLO LA PARTE DE CONEXION Y LUEGO HACEMOS
+      //UN PROCEDIMIENTO ENVIAR QUE LO UNICO QUE HAGA SEAN SEND AL SERVER USANDO
+      //EL SOCKET QUE YA CREAMOS.
+
+      //llamar aL procedimiento XS para pasarle el comando a traves del socket
+      //manejoSockets(comando);
+      continue;
+    }
+  }
+   
+  manejoSockets(contenidoArchivo);
+  
+  return (0);
 
 }
