@@ -6,11 +6,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include "menucchat.h"
+#include "lectorArchivo.h"
 /* netbd.h es necesitada por la estructura hostent ;-) */
 
 
 #define MAXDATASIZE 100   
 /* El número máximo de datos en bytes */
+
 
 int main(int argc, char *argv[])
 {
@@ -26,11 +28,16 @@ int main(int argc, char *argv[])
    struct sockaddr_in servidor;  
    /* información sobre la dirección del servidor */
 
+   char * contenidoArchivo;
+
    //llamada al menu
 
    menucchat(argc, argv);
 
-   if ((infoserver=gethostbyname(IP))==NULL) {       
+   contenidoArchivo = lectorArchivo(archivo, contenidoArchivo);
+   //printf("Contenido archivooo: %s\n", contenidoArchivo);
+
+   if ((infoserver=gethostbyname(IP))==NULL) {
       /* llamada a gethostbyname() */
       printf("gethostbyname() error\n");
       exit(-1);
@@ -57,7 +64,8 @@ int main(int argc, char *argv[])
       exit(-1);
    }
 
-   //send(fdcliente,peticion,(sizeof(char)*strlen(peticion)),0); 
+   send(fd,contenidoArchivo,strlen(contenidoArchivo),0); 
+      /* mensaje con el contenido del archivo al servidor */
 
    if ((numbytes=recv(fd,buf,MAXDATASIZE,0)) == -1){  
       /* llamada a recv() */

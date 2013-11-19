@@ -7,12 +7,15 @@
 #include <string.h>
 #include "menuschat.h"
 
-
+#define MAXDATASIZE 100   
 #define PORT 20336/* El puerto que será abierto */
 //#define BACKLOG 2 /* El número de conexiones permitidas */
 
 main()
 {
+
+   char buf[MAXDATASIZE];
+   /* en donde es almacenará el texto recibido */
 
    int fdservidor, fdcliente; /* los ficheros descriptores */
 
@@ -22,7 +25,7 @@ main()
    struct sockaddr_in cliente; 
    /* para la información de la dirección del cliente */
 
-   int tamsocket;
+   int tamsocket, numbytes;
 
    //menuschat(argc, argv);
 
@@ -63,6 +66,21 @@ main()
          printf("error en accept()\n");
          exit(-1);
       }
+
+      /*********************************************************/
+      /*** Lo agregue para recibir los parametros del cliente***/
+      if ((numbytes=recv(fdcliente,buf,MAXDATASIZE,0)) == -1){  
+         /* llamada a recv() */
+         printf("Error en recv() \n");
+         exit(-1);
+      }
+
+      /*** Aqui debe ir la lectura del buffer con las instrucciones ****/
+      /*** Y ejecutarlas en los hilos. Creo que tambien va lo de    ****/
+      /*** Esperar comandos por consola si no esta 'fue'            ****/
+      /*** usar la funcion strtok para separar por lineas (\n)      ****/
+      printf("Archivoooo:\n%s\n",buf);
+      /*********************************************************/
 
       printf("Se obtuvo una conexión desde %d\n",
              inet_ntoa(cliente.sin_addr) ); 
