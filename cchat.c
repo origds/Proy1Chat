@@ -13,6 +13,15 @@
 #define MAXDATASIZE 100   
 /* El número máximo de datos en bytes */
 
+/* Definimos la estructura mensaje que sera enviada al servidor */
+
+typedef struct Mensaje {
+    char *nombreuser;
+    char *contenidoMensaje; 
+  } Mensaje;
+
+/* Definicion del procedimiento que manejara el socket de cliente */
+
 void manejoSockets(char *mensaje) {
 
   int fd, numbytes;       
@@ -76,20 +85,23 @@ void manejoSockets(char *mensaje) {
 
 int main(int argc, char *argv[]) {
 
-  char * contenidoArchivo;
+  Mensaje msjcliente;
+
+  char* comando; //SUSTITUIR COMANDO POR CONTENIDOMENSAJE CUANDO 
+            //DEFINAMOS BIEN QUE HACER CON NUESTRAS VIDAS
 
   //Llamada al menu
   menucchat(argc, argv);
 
   // Si hay un archivo de comando es leido
   if (archivo!=NULL) {
-      contenidoArchivo = lectorArchivo(archivo, contenidoArchivo);
-      printf("Contenido archivooo: %s\n", contenidoArchivo);
+      msjcliente.contenidoMensaje = lectorArchivo(archivo, msjcliente.contenidoMensaje);
+      printf("Contenido archivooo: %s\n", msjcliente.contenidoMensaje);
       //llamada al procedimiento que creara el socket
       //manejoSockets();
       //llamada al procedimiento que enviara el archivo con el mensaje
       // del archivo     
-      manejoSockets(contenidoArchivo);
+      manejoSockets(msjcliente.contenidoMensaje);
   }
 
   //FALTA VERIFICAR QUE SI LA ULTIMA LINEA DEL ARCHIVO ES fue ENTONCES NO
@@ -98,14 +110,13 @@ int main(int argc, char *argv[]) {
 
   //Para leer comandos por consola
   while (1) {
-    char * comando;
     printf("Escriba el comando que desea utilizar:\n");
-    scanf("%s", comando);
+    scanf("%s", &comando);
     printf("comando %s\n", comando);
     if (strcmp(comando, "fue")==0) {
       return(0);
     } else {
-      //PREGUNTA!! CAPAZ MANEJO SOCKET HAY QUE SEPARARLO EN DOS PORQUE EN 
+      //PREGUNTA!! CAPAZ MANEJOSOCKET HAY QUE SEPARARLO EN DOS PORQUE EN 
       //MANEJO SOCKET PODEMOS DEJAR SOLO LA PARTE DE CONEXION Y LUEGO HACEMOS
       //UN PROCEDIMIENTO ENVIAR QUE LO UNICO QUE HAGA SEAN SEND AL SERVER USANDO
       //EL SOCKET QUE YA CREAMOS.
@@ -116,7 +127,7 @@ int main(int argc, char *argv[]) {
     }
   }
    
-  manejoSockets(contenidoArchivo);
+  manejoSockets(msjcliente.contenidoMensaje);
   
   return (0);
 
