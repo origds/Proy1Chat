@@ -11,49 +11,41 @@
 #define PORT 20336/* El puerto que será abierto */
 //#define BACKLOG 2 /* El número de conexiones permitidas */
 
-main()
+int main(int argc, char *argv[])
 {
 
-   char buf[MAXDATASIZE];
-   /* en donde es almacenará el texto recibido */
+   char usr[MAXDATASIZE], cmd[MAXDATASIZE];/* en donde es almacenará el texto recibido */
 
-   int fdservidor, fdcliente; /* los ficheros descriptores */
+   int socketservidor, socketcliente; /* los ficheros descriptores */
 
-   struct sockaddr_in servidor; 
-   /* para la información de la dirección del servidor */
+   struct sockaddr_in servidor; /* para la información de la dirección del servidor */
 
-   struct sockaddr_in cliente; 
-   /* para la información de la dirección del cliente */
+   struct sockaddr_in cliente; /* para la información de la dirección del cliente */
 
    int tamsocket, numbytes;
 
-   //menuschat(argc, argv);
+   menuschat(argc, argv);
 
-   /* A continuación la llamada a socket() */
-   if ((fdservidor=socket(AF_INET, SOCK_STREAM, 0)) == -1 ) {  
+   
+   if ((socketservidor=socket(AF_INET, SOCK_STREAM, 0)) == -1 ) {  
       printf("error en socket()\n");
       exit(-1);
    }
 
    servidor.sin_family = AF_INET;         
 
-   servidor.sin_port = htons(PORT); 
-   /* ¿Recuerdas a htons() de la sección "Conversiones"? =) */
+   servidor.sin_port = htons(PORT);
 
-   servidor.sin_addr.s_addr = inet_addr("127.0.0.1"); 
-   /* INADDR_ANY coloca nuestra dirección IP automáticamente */
+   servidor.sin_addr.s_addr = inet_addr("127.0.0.1"); /* INADDR_ANY coloca nuestra dirección IP automáticamente */
 
    bzero(&(servidor.sin_zero),8); 
-   /* escribimos ceros en el reto de la estructura */
 
-
-   /* A continuación la llamada a bind() */
-   if(bind(fdservidor,(struct sockaddr*)&servidor, sizeof(struct sockaddr))==-1) {
+   if(bind(socketservidor,(struct sockaddr*)&servidor, sizeof(struct sockaddr))==-1) {
       printf("error en bind() \n");
       exit(-1);
    }     
 
-   if(listen(fdservidor,SOMAXCONN) == -1) {  /* llamada a listen() */
+   if(listen(socketservidor,SOMAXCONN) == -1) {  /* llamada a listen() */
       printf("error en listen()\n");
       exit(-1);
    }
@@ -61,7 +53,7 @@ main()
    while(1) {
       tamsocket=sizeof(struct sockaddr_in);
       /* A continuación la llamada a accept() */
-      if ((fdcliente = accept(fdservidor,(struct sockaddr *)&cliente,
+      if ((socketcliente = accept(socketservidor,(struct sockaddr *)&cliente,
                         &tamsocket))==-1) {
          printf("error en accept()\n");
          exit(-1);
@@ -69,7 +61,13 @@ main()
 
       /*********************************************************/
       /*** Lo agregue para recibir los parametros del cliente***/
-      if ((numbytes=recv(fdcliente,buf,MAXDATASIZE,0)) == -1){  
+      if ((numbytes=recv(socketcliente,usr,MAXDATASIZE,0)) == -1){  
+         /* llamada a recv() */
+         printf("Error en recv() \n");
+         exit(-1);
+      }
+
+      if ((numbytes=recv(socketcliente,cmd,MAXDATASIZE,0)) == -1){  
          /* llamada a recv() */
          printf("Error en recv() \n");
          exit(-1);
@@ -79,17 +77,18 @@ main()
       /*** Y ejecutarlas en los hilos. Creo que tambien va lo de    ****/
       /*** Esperar comandos por consola si no esta 'fue'            ****/
       /*** usar la funcion strtok para separar por lineas (\n)      ****/
-      printf("Archivoooo:\n%s\n",buf);
+      printf("Nombreeeee: %s\n",usr);
+      printf("Archivoooo: %s\n",cmd);
       /*********************************************************/
 
       printf("Se obtuvo una conexión desde %d\n",
              inet_ntoa(cliente.sin_addr) ); 
       /* que mostrará la IP del cliente */
 
-      send(fdcliente,"Bienvenido a mi servidor.\n",27,0); 
+      send(socketcliente,"Bienvenido a mi servidor.\n",27,0); 
       /* que enviará el mensaje de bienvenida al cliente */
 
-      close(fdcliente); /* cierra fd2 */
+      close(socketcliente); /* cierra fd2 */
    }
 
    return(0);

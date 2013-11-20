@@ -23,19 +23,15 @@ char asignarParametros(char *param[], int tam) {
     if (strcmp(param[i],"-h")==0 && !h) {
         IP = param[i+1];
         h = 1;
-        printf("IP %s \n",IP);
     } else if (strcmp(param[i],"-p")==0 && !p) {
         puerto = atoi(param[i+1]);
         p = 1;
-        printf("puerto %d \n", puerto);
     } else if (strcmp(param[i],"-n")==0 && !n) {
         user = param[i+1];
         n = 1;
-        printf("nombre usuario %s \n",user);
     } else if (strcmp(param[i],"-a")==0 && !a) {
         archivo = param[i+1];
         a = 1;
-        printf("nombre archivo %s \n", archivo);
     } else {
         printf("ERROR: La sintaxis de cchat es:\n cchat [-h host] [-p puerto] [-n nombre] [-a archivo]\n");
         exit(1); 
@@ -49,11 +45,9 @@ char asignarParametros(char *param[], int tam) {
   } else if (!p) {
     puerto = 20336;
     p = 1;
-    //printf("puerto %s \n", puerto);
   } else if (!n) {
     user = "guest";
     n = 1;
-    printf("nombre usuario %s \n",user);
   }
 
   return (falto);

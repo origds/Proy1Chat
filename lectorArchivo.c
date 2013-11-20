@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include "lectorArchivo.h"
 
+int fue = 0;
+
 int tamanoArchivo(char * archivo){
 	int bytes = 0;
 	FILE * in;
@@ -38,6 +40,12 @@ char* lectorArchivo(char *nom, char *contenido){
 	
 	while (feof(in)==0){
 		fgets(lineaTemporal,bytes,in);
+
+		if ((strcmp(lineaTemporal, "fue\n")==0) || (strcmp(lineaTemporal, "fue")==0)){
+			fue = 1;
+			break;
+		}
+
 		if (primero == 0){
 			strcpy(contenido, lineaTemporal);
 			primero++;

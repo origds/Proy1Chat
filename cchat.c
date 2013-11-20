@@ -20,114 +20,115 @@ typedef struct Mensaje {
     char *contenidoMensaje; 
   } Mensaje;
 
+int sizeofMensaje(Mensaje msj) {
+  int size;
+  size = strlen(msj.nombreuser) + strlen(msj.contenidoMensaje);
+  return size;
+}
+
 /* Definicion del procedimiento que manejara el socket de cliente */
 
-void manejoSockets(char *mensaje) {
+int conectarSocket() {
 
-  int fd, numbytes;       
-  /* ficheros descriptores */
-
-  char buf[MAXDATASIZE];
-  /* en donde es almacenará el texto recibido */
-
-  struct hostent *infoserver;         
-  /* estructura que recibirá información sobre el nodo remoto */
-
-  struct sockaddr_in servidor;  
-  /* información sobre la dirección del servidor */
+  int socketfd; /* ficheros descriptores */
+  struct hostent *infoserver; /* estructura que recibirá información sobre el nodo remoto */
+  struct sockaddr_in servidor; /* información sobre la dirección del servidor */
 
   if ((infoserver=gethostbyname(IP))==NULL) {
-    /* llamada a gethostbyname() */
     printf("gethostbyname() error\n");
     exit(-1);
   }
 
-  if ((fd=socket(AF_INET, SOCK_STREAM, 0))==-1){  
-    /* llamada a socket() */
+  if ((socketfd=socket(AF_INET, SOCK_STREAM, 0))==-1){  
     printf("socket() error\n");
     exit(-1);
   }
 
   servidor.sin_family = AF_INET;
-  printf("puertoooo: %d",puerto);
   servidor.sin_port = htons(puerto);
   /* htons() es necesaria nuevamente ;-o */
   servidor.sin_addr = *((struct in_addr *)infoserver->h_addr);  
   /*infoserver->h_addr pasa la información de ``*infoserver'' a "h_addr" */
   bzero(&(servidor.sin_zero),8);
 
-  if(connect(fd, (struct sockaddr *)&servidor,
-    sizeof(struct sockaddr))==-1){ 
-    /* llamada a connect() */
+  if(connect(socketfd, (struct sockaddr *)&servidor, sizeof(struct sockaddr))==-1){ 
     printf("connect() error\n");
+    close(socketfd);
     exit(-1);
   }
 
-  send(fd,mensaje,strlen(mensaje),0); 
-    /* envia mensaje con el contenido del archivo o el comando al servidor */
+  return socketfd;
+
+}
+
+
+void enviarPeticion(int fd, Mensaje mensaje) {
+
+  int numbytes;
+
+  char buf[MAXDATASIZE]; /* en donde es almacenará el texto recibido */
+
+  if (send(fd,mensaje.nombreuser,strlen(mensaje.nombreuser),0)==-1){
+    printf("No pudo enviarse el nombre de usuario al servidor\n\n");
+  }
+
+  if (send(fd,mensaje.contenidoMensaje,strlen(mensaje.contenidoMensaje),0)==-1){
+    printf("No pudo enviarse el mensaje al servidor\n");
+  } 
 
   if ((numbytes=recv(fd,buf,MAXDATASIZE,0)) == -1){  
-    /* llamada a recv() */
-    printf("Error en recv() \n");
+    printf("Error en recv() de cliente\n\n");
     exit(-1);
   }
 
   buf[numbytes]='\0';
 
-  printf("Mensaje del Servidor: %s\n",buf); 
-  /* muestra el mensaje de bienvenida del servidor =) */
+  printf("Mensaje del Servidor: %s\n",buf);
 
-  close(fd);   /* cerramos fd =) */
+  close(fd);
 
-} 
+}
 
-
+/* Funcion Principal Main */
 
 int main(int argc, char *argv[]) {
 
   Mensaje msjcliente;
-
-  char* comando; //SUSTITUIR COMANDO POR CONTENIDOMENSAJE CUANDO 
-            //DEFINAMOS BIEN QUE HACER CON NUESTRAS VIDAS
+  int socketcliente;
 
   //Llamada al menu
   menucchat(argc, argv);
 
+  socketcliente = conectarSocket();
+  
+  msjcliente.nombreuser = user;
+  strcat(msjcliente.nombreuser, "\0");
+
   // Si hay un archivo de comando es leido
   if (archivo!=NULL) {
       msjcliente.contenidoMensaje = lectorArchivo(archivo, msjcliente.contenidoMensaje);
-      printf("Contenido archivooo: %s\n", msjcliente.contenidoMensaje);
-      //llamada al procedimiento que creara el socket
-      //manejoSockets();
-      //llamada al procedimiento que enviara el archivo con el mensaje
-      // del archivo     
-      manejoSockets(msjcliente.contenidoMensaje);
+      //printf("Contenido archivooo: %s\n", msjcliente.contenidoMensaje);
+      enviarPeticion(socketcliente, msjcliente);
+
   }
 
-  //FALTA VERIFICAR QUE SI LA ULTIMA LINEA DEL ARCHIVO ES fue ENTONCES NO
-  // DEBE PEDIR COMANDOS POR CONSOLA
-   
 
-  //Para leer comandos por consola
-  while (1) {
-    printf("Escriba el comando que desea utilizar:\n");
-    scanf("%s", &comando);
-    printf("comando %s\n", comando);
-    if (strcmp(comando, "fue")==0) {
-      return(0);
-    } else {
-      //PREGUNTA!! CAPAZ MANEJOSOCKET HAY QUE SEPARARLO EN DOS PORQUE EN 
-      //MANEJO SOCKET PODEMOS DEJAR SOLO LA PARTE DE CONEXION Y LUEGO HACEMOS
-      //UN PROCEDIMIENTO ENVIAR QUE LO UNICO QUE HAGA SEAN SEND AL SERVER USANDO
-      //EL SOCKET QUE YA CREAMOS.
-
-      //llamar aL procedimiento XS para pasarle el comando a traves del socket
-      //manejoSockets(comando);
-      continue;
+  if (fue!=1) {
+    //Para leer comandos por consola
+    while (1) {
+      printf("Escriba el comando que desea utilizar:\n");
+      scanf("%ms", &msjcliente.contenidoMensaje);
+      printf("comando %s\n", msjcliente.contenidoMensaje);
+      if (strcmp(msjcliente.contenidoMensaje, "fue")==0) {
+        return(0);
+      } else {
+        socketcliente = conectarSocket();
+        enviarPeticion(socketcliente, msjcliente);
+        continue;
+      }
     }
-  }
    
-  manejoSockets(msjcliente.contenidoMensaje);
+  }
   
   return (0);
 

@@ -28,12 +28,10 @@ void asignarParametros(char *param[], int tam) {
 		if (strcmp(param[i],"-p")==0 && !p){
 			puerto = atoi(param[i+1]);
 			p = 1;
-			printf("puerto: %d", puerto);
 		}
 		else if (strcmp(param[i],"-s")==0 && !s){
 			sala = param[i+1];
 			s = 1;
-			printf("sala: %s", sala);
 		}
 		else{ 
 			printf("ERROR: La sintaxis de schat es:\nschat [-p <puerto>] [-s <sala>]\n");
