@@ -3,14 +3,14 @@
 #	 	   Iván Travecedo	08-11131
 # hay que agregar -pthread cuando se trabajen los hilos!
 all: cchat schat
-cchat: cchat.o menucchat.o lectorArchivo.o
-	gcc menucchat.o lectorArchivo.o cchat.o -o cchat
-cchat.o: cchat.c menucchat.h lectorArchivo.h
+cchat: cchat.o menucchat.o manejarArchivo.o
+	gcc menucchat.o manejarArchivo.o cchat.o -o cchat
+cchat.o: cchat.c menucchat.h manejarArchivo.h
 	gcc -c cchat.c
 menucchat.o: menucchat.c menucchat.h
 	gcc -c menucchat.c
-lectorArchivo.o: lectorArchivo.c lectorArchivo.h
-	gcc -c lectorArchivo.c
+manejarArchivo.o: manejarArchivo.c manejarArchivo.h
+	gcc -c manejarArchivo.c
 schat: schat.o menuschat.o
 	gcc menuschat.o schat.o -o schat
 schat.o: schat.c menuschat.h
