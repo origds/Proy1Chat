@@ -11,11 +11,13 @@ menucchat.o: menucchat.c menucchat.h
 	gcc -c menucchat.c
 manejarArchivo.o: manejarArchivo.c manejarArchivo.h
 	gcc -c manejarArchivo.c
-schat: schat.o menuschat.o
-	gcc menuschat.o schat.o -o schat
+schat: schat.o menuschat.o procesarinstrucciones.o
+	gcc menuschat.o schat.o procesarinstrucciones.o -o schat
 schat.o: schat.c menuschat.h
 	gcc -c schat.c
 menuschat.o: menuschat.c menuschat.h
 	gcc -c menuschat.c
+procesarinstrucciones.o: procesarinstrucciones.c procesarinstrucciones.h
+	gcc -c procesarinstrucciones.c
 clean:
 	rm *.o cchat schat

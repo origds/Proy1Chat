@@ -6,12 +6,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include "menucchat.h"
-#include "lectorArchivo.h"
+#include "manejarArchivo.h"
 /* netbd.h es necesitada por la estructura hostent ;-) */
 
 
 #define MAXDATASIZE 100   
 /* El número máximo de datos en bytes */
+
+int socketcliente;
 
 /* Definimos la estructura mensaje que sera enviada al servidor */
 
@@ -65,15 +67,14 @@ int conectarSocket() {
 void enviarPeticion(int fd, Mensaje mensaje) {
 
   int numbytes;
-
   char buf[MAXDATASIZE]; /* en donde es almacenará el texto recibido */
 
-  printf("MENSAJE.NOMBREUSER %d y %s\n", strlen(mensaje.nombreuser), mensaje.nombreuser);
+  printf("%d y %s\n", strlen(mensaje.nombreuser), mensaje.nombreuser);
   if (send(fd,mensaje.nombreuser,strlen(mensaje.nombreuser),0)==-1){
     printf("No pudo enviarse el nombre de usuario al servidor\n\n");
   }
 
-  printf("MENSAJE.CONTENIDOMENSAJE %d y %s \n", strlen(mensaje.contenidoMensaje), mensaje.contenidoMensaje);
+  printf("%d y %s \n", strlen(mensaje.contenidoMensaje), mensaje.contenidoMensaje);
   if (send(fd,mensaje.contenidoMensaje,strlen(mensaje.contenidoMensaje),0)==-1){
     printf("No pudo enviarse el mensaje al servidor\n");
   } 
@@ -85,20 +86,43 @@ void enviarPeticion(int fd, Mensaje mensaje) {
 
   buf[numbytes]='\0';
 
-  printf("Mensaje del Servidor: %s\n",buf);
+  printf("Servidor: %s\n",buf);
 
   close(fd);
 
 }
+
+void lectorArchivo(FILE * in, int bytes, Mensaje msj) {
+
+  char lineaTemporal[bytes];
+
+  while (feof(in)==0){
+      fgets(lineaTemporal,bytes,in);
+
+      if ((strcmp(lineaTemporal, "fue\n")==0) || (strcmp(lineaTemporal, "fue")==0)){
+        fue = 1;
+        break;
+      }
+
+      strcpy(msj.contenidoMensaje,lineaTemporal);
+      socketcliente = conectarSocket();
+      enviarPeticion(socketcliente, msj);
+  }
+    
+    /*Cerramos in*/
+    fclose(in);
+
+}
+
 
 /* Funcion Principal Main */
 
 int main(int argc, char *argv[]) {
 
   Mensaje msjcliente;
+  FILE * file;
   char comando[100];
   char resto[100];
-  int socketcliente;
   fue = 0;
 
   //Llamada al menu
@@ -106,16 +130,14 @@ int main(int argc, char *argv[]) {
 
   msjcliente.nombreuser=(char *)malloc(sizeof(char*)*20);
   strcpy(msjcliente.nombreuser,user);
-  printf("El que llega al cliente: %s\n", msjcliente.nombreuser);
+  msjcliente.contenidoMensaje=(char *)malloc(sizeof(char*)*MAXDATASIZE);
 
 
   // Si hay un archivo de comando es leido
   if (archivo!=NULL) {
-      msjcliente.contenidoMensaje = lectorArchivo(archivo, msjcliente.contenidoMensaje);
-      socketcliente = conectarSocket();
-      enviarPeticion(socketcliente, msjcliente);
-  } else {
-     msjcliente.contenidoMensaje=(char *)malloc(sizeof(char*)*100);
+    int tam = tamanoArchivo(archivo);
+    file = abrirArchivo(archivo);
+    lectorArchivo(file, tam, msjcliente);
   }
 
   if (fue!=1) {
@@ -129,10 +151,8 @@ int main(int argc, char *argv[]) {
         }
       printf("comando %s\n", msjcliente.contenidoMensaje);
       if (strcmp(msjcliente.contenidoMensaje, "fue")==0) {
-        printf("Entre en fue\n");
         return(0);
       } else {
-        printf("Entre en else y el user es %s\n", msjcliente.nombreuser);
         socketcliente = conectarSocket();
         enviarPeticion(socketcliente, msjcliente);
         continue;
@@ -141,6 +161,8 @@ int main(int argc, char *argv[]) {
    
   }
   
+  free(msjcliente.nombreuser);
+  free(msjcliente.contenidoMensaje);
   return (0);
 
 }

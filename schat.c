@@ -15,14 +15,13 @@ int socketservidor, socketcliente; /* los ficheros descriptores */
 
 void manejoSocket() {
 
-
    char usr[MAXDATASIZE], cmd[MAXDATASIZE];/* en donde es almacenará el texto recibido */
-
    struct sockaddr_in servidor; /* para la información de la dirección del servidor */
-
    struct sockaddr_in cliente; /* para la información de la dirección del cliente */
-
    int tamsocket, numbytes;
+   char bienvenida[] = "Bienvenido a IOChat. Su sala por defecto es: ";
+
+   strcat(bienvenida, sala);
 
    if ((socketservidor=socket(AF_INET, SOCK_STREAM, 0)) == -1 ) {  
       printf("error en socket()\n");
@@ -30,9 +29,7 @@ void manejoSocket() {
    }
 
    servidor.sin_family = AF_INET;         
-
    servidor.sin_port = htons(PORT);
-
    servidor.sin_addr.s_addr = inet_addr("127.0.0.1"); /* INADDR_ANY coloca nuestra dirección IP automáticamente */
 
    bzero(&(servidor.sin_zero),8); 
@@ -51,15 +48,14 @@ void manejoSocket() {
 
       /* A continuación la llamada a accept() */
       tamsocket=sizeof(struct sockaddr_in);
+      bzero(usr, sizeof(usr));
+      bzero(cmd, sizeof(cmd));
 
       if ((socketcliente = accept(socketservidor,(struct sockaddr *)&cliente, &tamsocket))==-1) {
          printf("error en accept()\n");
          exit(-1);
       }
 
-      /*********************************************************/
-      /*** Lo agregue para recibir los parametros del cliente***/
-      bzero(usr, sizeof(usr));
 
       if ((numbytes=recv(socketcliente,usr,MAXDATASIZE,0)) == -1){  
          /* llamada a recv() */
@@ -67,7 +63,6 @@ void manejoSocket() {
          exit(-1);
       }
 
-      bzero(cmd, sizeof(cmd));
 
       if ((numbytes=recv(socketcliente,cmd,MAXDATASIZE,0)) == -1){  
          /* llamada a recv() */
@@ -75,39 +70,21 @@ void manejoSocket() {
          exit(-1);
       }
 
-      /*int i;
-      char comando[3];
-      char mensaje[100];
-      char msjcompleto[100]; 
-
-      for (i = 0; i<sizeof(cmd); i++) {
-         while (cmd[i]!='\0') {
-            while (cmd[i]!='\n') {
-               if (cmd[i]==' ') {
-                  i = i+1;
-                  strcat(mensaje,gets(msjcompleto));
-               } else {
-                  //comando+=cmd[i];
-               }
-               printf("Comando: %s\n", comando);
-               printf("Mensaje: %s\n", mensaje);
-            }
-         }
-      }*/
-
       /*** Aqui debe ir la lectura del buffer con las instrucciones ****/
       /*** Y ejecutarlas en los hilos. Creo que tambien va lo de    ****/
       /*** Esperar comandos por consola si no esta 'fue'            ****/
       /*** usar la funcion strtok para separar por lineas (\n)      ****/
       printf("Nombreeeee: %s\n",usr);
       printf("Archivoooo: %s\n",cmd);
+
+      generarInstrucciones(cmd);
       /*********************************************************/
 
       printf("Se obtuvo una conexión desde %d\n",
              inet_ntoa(cliente.sin_addr) ); 
       /* que mostrará la IP del cliente */
 
-      send(socketcliente,"Bienvenido a mi servidor.\n",27,0); 
+      send(socketcliente,bienvenida,strlen(bienvenida),0);
       /* que enviará el mensaje de bienvenida al cliente */
 
    }
