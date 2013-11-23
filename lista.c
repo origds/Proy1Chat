@@ -1,19 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "lista.h"
 
-typedef struct nodo {
-  char *nombre;
-  struct ListaId *lista;
-  struct nodo *sig;
-  struct nodo *ant;
-}Elemento;
-
-typedef struct ListaId{
-  Elemento *fin;
-  Elemento *ini;
-  int tam;
-}Lista;
 
 void nuevaLista (Lista *lista){
   lista->ini = NULL;
@@ -21,7 +10,7 @@ void nuevaLista (Lista *lista){
   lista->tam = 0;
 }
 
-int insertarVacia (Lista * lista, char *nombre, Lista * asoc){
+int insertar (Lista * lista, char *nombre, Lista * asoc){
   Elemento *elem;
   if ((elem = (Elemento *) malloc (sizeof(Elemento))) == NULL)
     return -1;
@@ -29,27 +18,20 @@ int insertarVacia (Lista * lista, char *nombre, Lista * asoc){
     return -1;
   strcpy (elem->nombre, nombre);
   elem->lista = asoc;
-  elem->ant = lista->ini;
-  elem->sig = lista->fin;
-  lista->ini = elem;
-  lista->fin = elem;
-  lista->tam++;
-  return 0;
-}
-
-int insertarNoVacia(Lista * lista, char *nombre, Lista * asoc){
-  Elemento *elem;
-  if ((elem = (Elemento *) malloc (sizeof(Elemento))) == NULL)
-    return -1;
-  if ((elem->nombre = (char*)malloc(sizeof(nombre)))==NULL)
-    return -1;  
-  strcpy (elem->nombre, nombre);
-  elem->lista = asoc;
-  elem->ant = NULL;
-  elem->sig = lista->ini;
-  lista->ini->ant = elem;
-  lista->ini = elem;
-  lista->tam++;
+  if(lista->tam==0){
+    elem->ant = lista->ini;
+    elem->sig = lista->fin;
+    lista->ini = elem;
+    lista->fin = elem;
+    lista->tam++;
+  }
+  else{
+    elem->ant = NULL;
+    elem->sig = lista->ini;
+    lista->ini->ant = elem;
+    lista->ini = elem;
+    lista->tam++;
+  }
   return 0;
 }
 
@@ -76,7 +58,6 @@ int eliminar(Lista *lista, char * nombre){
         sup_elemento->ant->sig = sup_elemento->sig;
         sup_elemento->sig->ant = sup_elemento->ant;
       }
-      //llamar a una funcion para hacer free de la lista del elemento
       if(sup_elemento->lista!=NULL)
         borrar(sup_elemento->lista);
       free(sup_elemento->nombre);
@@ -93,22 +74,21 @@ int eliminar(Lista *lista, char * nombre){
 
 int borrar(Lista *lista){
   Elemento *elem;
-  printf("Entra borrar");
+  printf("Entra borrar\n");
   while (lista->ini != NULL){
-    printf("entra while borrar");
+    printf("entra while borrar\n");
     elem = lista->ini;
     lista->ini = lista->ini->sig;
-    elem->sig->ant=NULL;
+    if(elem->sig!=NULL){
+      elem->sig->ant=NULL;
+    }
     free(elem->nombre);
-    free(elem->sig);
-    free(elem->ant);
     if(elem->lista!=NULL){
       borrar(elem->lista);
-      printf("entra borrar recursivo");
+      printf("entra borrar recursivo\n");
     }
     free(elem);
   }
-  free(lista);
 }
 
 void printLista(Lista * lista){
@@ -127,24 +107,25 @@ void printLista(Lista * lista){
   }
 }
 
-int main(){
+/*int main(){
   Lista * lista;
   lista = (Lista *) malloc (sizeof(Lista));
   nuevaLista(lista);
-  insertarVacia(lista,"elem1", NULL);
-  insertarNoVacia(lista,"elem2", NULL);
-  insertarNoVacia(lista,"elem3", NULL);
-  insertarNoVacia(lista,"elem4", NULL);
+  insertar(lista,"elem1", NULL);
+  insertar(lista,"elem2", NULL);
+  insertar(lista,"elem3", NULL);
+  insertar(lista,"elem4", NULL);
   printLista(lista);
-  printf("Va a entrar a borrar");
-  /*eliminar(lista,"elem2");
+  printf("Va a entrar a borrar\n");
+  eliminar(lista,"elem2");
   printLista(lista);
   eliminar(lista,"elem3");
   printLista(lista);
   eliminar(lista,"elem1");
   printLista(lista);
   eliminar(lista,"elem4");
-  printLista(lista);*/
+  printLista(lista);
 
   borrar(lista);
-}
+  free(lista);
+}*/
