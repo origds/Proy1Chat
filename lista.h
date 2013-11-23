@@ -20,5 +20,7 @@ void nuevaLista (Lista *lista);
 int insertar (Lista * lista, char *nombre, Lista * asoc);
 int eliminar(Lista *lista, char * nombre);
 int borrar(Lista *lista);
-void printLista(Lista * lista);
+void printListaPpal(Lista * lista);
+void printListaAux(Lista * lista, char *nombre);
 int buscar(Lista *lista, char * nombre);
+int buscarAux(Lista *lista, char * nombre, char * segunda);
