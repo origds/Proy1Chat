@@ -74,9 +74,7 @@ int eliminar(Lista *lista, char * nombre){
 
 int borrar(Lista *lista){
   Elemento *elem;
-  printf("Entra borrar\n");
   while (lista->ini != NULL){
-    printf("entra while borrar\n");
     elem = lista->ini;
     lista->ini = lista->ini->sig;
     if(elem->sig!=NULL){
@@ -107,6 +105,28 @@ void printLista(Lista * lista){
   }
 }
 
+/*
+ * return -1 ERROR
+ * return 0 ENCONTRADO
+ */
+int buscar(Lista *lista, char * nombre){
+  Elemento *elem;
+
+  if(lista->tam == 0)
+    return -1;
+
+  elem = lista->ini;
+  while(elem!=NULL){
+    if(strcmp(elem->nombre,nombre)==0){
+      return 0;
+    }
+    else{
+      elem = elem->sig;
+    }
+  }
+  return -1;
+}
+
 /*int main(){
   Lista * lista;
   lista = (Lista *) malloc (sizeof(Lista));
@@ -116,8 +136,7 @@ void printLista(Lista * lista){
   insertar(lista,"elem3", NULL);
   insertar(lista,"elem4", NULL);
   printLista(lista);
-  printf("Va a entrar a borrar\n");
-  eliminar(lista,"elem2");
+  /*eliminar(lista,"elem2");
   printLista(lista);
   eliminar(lista,"elem3");
   printLista(lista);
@@ -125,6 +144,9 @@ void printLista(Lista * lista){
   printLista(lista);
   eliminar(lista,"elem4");
   printLista(lista);
+  if (buscar(lista,"elem3")==0){
+    printf("Encontro elem3\n");
+  }
 
   borrar(lista);
   free(lista);

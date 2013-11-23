@@ -21,3 +21,4 @@ int insertar (Lista * lista, char *nombre, Lista * asoc);
 int eliminar(Lista *lista, char * nombre);
 int borrar(Lista *lista);
 void printLista(Lista * lista);
+int buscar(Lista *lista, char * nombre);
