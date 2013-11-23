@@ -11,12 +11,12 @@
 #define PORT 20336/* El puerto que será abierto */
 //#define BACKLOG 2 /* El número de conexiones permitidas */
 
-int main(int argc, char *argv[])
-{
+int socketservidor, socketcliente; /* los ficheros descriptores */
+
+void manejoSocket() {
+
 
    char usr[MAXDATASIZE], cmd[MAXDATASIZE];/* en donde es almacenará el texto recibido */
-
-   int socketservidor, socketcliente; /* los ficheros descriptores */
 
    struct sockaddr_in servidor; /* para la información de la dirección del servidor */
 
@@ -24,9 +24,6 @@ int main(int argc, char *argv[])
 
    int tamsocket, numbytes;
 
-   menuschat(argc, argv);
-
-   
    if ((socketservidor=socket(AF_INET, SOCK_STREAM, 0)) == -1 ) {  
       printf("error en socket()\n");
       exit(-1);
@@ -51,27 +48,52 @@ int main(int argc, char *argv[])
    }
 
    while(1) {
-      tamsocket=sizeof(struct sockaddr_in);
+
       /* A continuación la llamada a accept() */
-      if ((socketcliente = accept(socketservidor,(struct sockaddr *)&cliente,
-                        &tamsocket))==-1) {
+      tamsocket=sizeof(struct sockaddr_in);
+
+      if ((socketcliente = accept(socketservidor,(struct sockaddr *)&cliente, &tamsocket))==-1) {
          printf("error en accept()\n");
          exit(-1);
       }
 
       /*********************************************************/
       /*** Lo agregue para recibir los parametros del cliente***/
+      bzero(usr, sizeof(usr));
+
       if ((numbytes=recv(socketcliente,usr,MAXDATASIZE,0)) == -1){  
          /* llamada a recv() */
-         printf("Error en recv() \n");
+         printf("Error en recv() 1 \n");
          exit(-1);
       }
 
+      bzero(cmd, sizeof(cmd));
+
       if ((numbytes=recv(socketcliente,cmd,MAXDATASIZE,0)) == -1){  
          /* llamada a recv() */
-         printf("Error en recv() \n");
+         printf("Error en recv() 2\n");
          exit(-1);
       }
+
+      /*int i;
+      char comando[3];
+      char mensaje[100];
+      char msjcompleto[100]; 
+
+      for (i = 0; i<sizeof(cmd); i++) {
+         while (cmd[i]!='\0') {
+            while (cmd[i]!='\n') {
+               if (cmd[i]==' ') {
+                  i = i+1;
+                  strcat(mensaje,gets(msjcompleto));
+               } else {
+                  //comando+=cmd[i];
+               }
+               printf("Comando: %s\n", comando);
+               printf("Mensaje: %s\n", mensaje);
+            }
+         }
+      }*/
 
       /*** Aqui debe ir la lectura del buffer con las instrucciones ****/
       /*** Y ejecutarlas en los hilos. Creo que tambien va lo de    ****/
@@ -88,8 +110,19 @@ int main(int argc, char *argv[])
       send(socketcliente,"Bienvenido a mi servidor.\n",27,0); 
       /* que enviará el mensaje de bienvenida al cliente */
 
-      close(socketcliente); /* cierra fd2 */
    }
+
+   close(socketcliente); /* cierra fd2 */
+
+}
+
+int main(int argc, char *argv[])
+{
+
+   menuschat(argc, argv);
+
+   manejoSocket();
+   close(socketservidor);   
 
    return(0);
 }

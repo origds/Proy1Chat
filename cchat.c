@@ -68,10 +68,12 @@ void enviarPeticion(int fd, Mensaje mensaje) {
 
   char buf[MAXDATASIZE]; /* en donde es almacenará el texto recibido */
 
+  printf("MENSAJE.NOMBREUSER %d y %s\n", strlen(mensaje.nombreuser), mensaje.nombreuser);
   if (send(fd,mensaje.nombreuser,strlen(mensaje.nombreuser),0)==-1){
     printf("No pudo enviarse el nombre de usuario al servidor\n\n");
   }
 
+  printf("MENSAJE.CONTENIDOMENSAJE %d y %s \n", strlen(mensaje.contenidoMensaje), mensaje.contenidoMensaje);
   if (send(fd,mensaje.contenidoMensaje,strlen(mensaje.contenidoMensaje),0)==-1){
     printf("No pudo enviarse el mensaje al servidor\n");
   } 
@@ -94,34 +96,43 @@ void enviarPeticion(int fd, Mensaje mensaje) {
 int main(int argc, char *argv[]) {
 
   Mensaje msjcliente;
+  char comando[100];
+  char resto[100];
   int socketcliente;
+  fue = 0;
 
   //Llamada al menu
   menucchat(argc, argv);
 
-  socketcliente = conectarSocket();
-  
-  msjcliente.nombreuser = user;
-  strcat(msjcliente.nombreuser, "\0");
+  msjcliente.nombreuser=(char *)malloc(sizeof(char*)*20);
+  strcpy(msjcliente.nombreuser,user);
+  printf("El que llega al cliente: %s\n", msjcliente.nombreuser);
+
 
   // Si hay un archivo de comando es leido
   if (archivo!=NULL) {
       msjcliente.contenidoMensaje = lectorArchivo(archivo, msjcliente.contenidoMensaje);
-      //printf("Contenido archivooo: %s\n", msjcliente.contenidoMensaje);
+      socketcliente = conectarSocket();
       enviarPeticion(socketcliente, msjcliente);
-
+  } else {
+     msjcliente.contenidoMensaje=(char *)malloc(sizeof(char*)*100);
   }
-
 
   if (fue!=1) {
     //Para leer comandos por consola
     while (1) {
       printf("Escriba el comando que desea utilizar:\n");
-      scanf("%ms", &msjcliente.contenidoMensaje);
+      scanf("%s", comando);
+      strcpy(msjcliente.contenidoMensaje,comando);
+        if (strcmp(comando,"men")==0 || strcmp(comando,"sus")==0 || strcmp(comando,"cre")==0 || strcmp(comando,"eli")==0){
+          strcat(msjcliente.contenidoMensaje,gets(resto));
+        }
       printf("comando %s\n", msjcliente.contenidoMensaje);
       if (strcmp(msjcliente.contenidoMensaje, "fue")==0) {
+        printf("Entre en fue\n");
         return(0);
       } else {
+        printf("Entre en else y el user es %s\n", msjcliente.nombreuser);
         socketcliente = conectarSocket();
         enviarPeticion(socketcliente, msjcliente);
         continue;

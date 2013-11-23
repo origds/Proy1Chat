@@ -59,9 +59,3 @@ char* lectorArchivo(char *nom, char *contenido){
 	fclose(in);
 	return contenido;
 }
-
-/*int main(int argc, char *argv[]){
-	char * contenido;
-	printf("En el buffer =\n %s\n", lectorArchivo(argv[1],contenido));
-	return 0;
-}*/
