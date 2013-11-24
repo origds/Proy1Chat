@@ -129,7 +129,7 @@ void printListaAux(Lista * lista, char *nombre){
  * return -1 ERROR
  * return 0 ENCONTRADO
  */
-int buscarPpal(Lista *lista, char * nombre){
+Elemento * buscarPpal(Lista *lista, char * nombre){
   Elemento *elem;
 
   if(lista->tam == 0)
@@ -138,16 +138,16 @@ int buscarPpal(Lista *lista, char * nombre){
   elem = lista->ini;
   while(elem!=NULL){
     if(strcmp(elem->nombre,nombre)==0){
-      return 0;
+      return elem;
     }
     else{
       elem = elem->sig;
     }
   }
-  return -1;
+  return NULL;
 }
 
-int buscarAux(Lista *lista, char * nombre, char * segunda){
+Elemento * buscarAux(Lista *lista, char * nombre, char * segunda){
   Elemento *elem;
 
   if(lista->tam == 0)
@@ -157,6 +157,24 @@ int buscarAux(Lista *lista, char * nombre, char * segunda){
   while(elem!=NULL){
     if(strcmp(elem->nombre,nombre)==0){
       return buscarPpal(elem->lista,segunda);
+    }
+    else{
+      elem = elem->sig;
+    }
+  }
+  return NULL;
+}
+
+int insertarAux(Lista *lista, char * nombreppal, char * nombreaux){
+  Elemento *elem;
+
+  if(lista->tam == 0)
+    return -1;
+
+  elem = lista->ini;
+  while(elem!=NULL){
+    if(strcmp(elem->nombre,nombreppal)==0){
+      return insertar(elem->lista, nombreaux, NULL);
     }
     else{
       elem = elem->sig;

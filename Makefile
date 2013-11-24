@@ -1,6 +1,6 @@
 # Makefile para cchat y schat
 # Autores Oriana Gomez		09-10336
-#	 	   Iván Travecedo	08-11131
+#	 	   Ivan Travecedo	08-11131
 # hay que agregar -pthread cuando se trabajen los hilos!
 all: cchat schat
 cchat: cchat.o menucchat.o manejarArchivo.o
@@ -17,7 +17,9 @@ schat.o: schat.c menuschat.h
 	gcc -c schat.c
 menuschat.o: menuschat.c menuschat.h
 	gcc -c menuschat.c
-procesarinstrucciones.o: procesarinstrucciones.c procesarinstrucciones.h
+procesarinstrucciones.o: procesarinstrucciones.c procesarinstrucciones.h lista.h
 	gcc -c procesarinstrucciones.c
+lista.o: lista.c lista.h
+	gcc -c lista.c
 clean:
 	rm *.o cchat schat

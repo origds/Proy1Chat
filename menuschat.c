@@ -10,7 +10,6 @@
 #include "menuschat.h"
 
 // menu
-// falta colocar posibles valores por defecto para el puerto y la sala
 	// puerto por defecto: 20336
 	// sala por defecto: chatroom
 

@@ -77,7 +77,7 @@ void manejoSocket() {
       printf("Nombreeeee: %s\n",usr);
       printf("Archivoooo: %s\n",cmd);
 
-      generarInstrucciones(cmd);
+      generarInstrucciones(usr, cmd);
       /*********************************************************/
 
       printf("Se obtuvo una conexión desde %d\n",
@@ -97,6 +97,8 @@ int main(int argc, char *argv[])
 {
 
    menuschat(argc, argv);
+
+   crearUsuariosSalas(sala);
 
    manejoSocket();
    close(socketservidor);   
