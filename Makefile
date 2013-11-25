@@ -11,8 +11,8 @@ menucchat.o: menucchat.c menucchat.h
 	gcc -c menucchat.c
 manejarArchivo.o: manejarArchivo.c manejarArchivo.h
 	gcc -c manejarArchivo.c
-schat: schat.o menuschat.o procesarinstrucciones.o
-	gcc menuschat.o schat.o procesarinstrucciones.o -o schat
+schat: schat.o menuschat.o procesarinstrucciones.o lista.o
+	gcc menuschat.o schat.o procesarinstrucciones.o lista.o -o schat
 schat.o: schat.c menuschat.h
 	gcc -c schat.c
 menuschat.o: menuschat.c menuschat.h

@@ -10,6 +10,42 @@ void nuevaLista (Lista *lista){
   lista->tam = 0;
 }
 
+void printListaPpal(Lista * lista){
+  Elemento *elem;
+
+  if(lista==NULL || lista->tam == 0){
+    printf("No hay elementos en la lista\n");
+    exit(0);
+  }
+  else{
+    elem = lista->ini;
+    while(elem!=NULL){
+      printf("Nombre:%s\n", elem->nombre);
+      elem = elem ->sig;
+    }
+  }
+}
+
+void printListaAux(Lista * lista, char *nombre){
+  Elemento *elem;
+  if(lista->tam == 0){
+    printf("No hay elementos en la lista\n");
+    exit(0);
+  }
+  else{
+    elem = lista->ini;
+    while(elem!=NULL){
+      if(strcmp(elem->nombre,nombre)==0){
+        printListaPpal(elem->lista);
+        elem = NULL;
+      }
+      else{
+        elem = elem ->sig;
+      }
+    }
+  }
+}
+
 int insertar (Lista * lista, char *nombre, Lista * asoc){
   Elemento *elem;
   if ((elem = (Elemento *) malloc (sizeof(Elemento))) == NULL)
@@ -83,45 +119,8 @@ int borrar(Lista *lista){
     free(elem->nombre);
     if(elem->lista!=NULL){
       borrar(elem->lista);
-      printf("entra borrar recursivo\n");
     }
     free(elem);
-  }
-}
-
-void printListaPpal(Lista * lista){
-  Elemento *elem;
-
-  if(lista==NULL || lista->tam == 0){
-    printf("No hay elementos en la lista\n");
-    exit(0);
-  }
-  else{
-    elem = lista->ini;
-    while(elem!=NULL){
-      printf("Nombre:%s\n", elem->nombre);
-      elem = elem ->sig;
-    }
-  }
-}
-
-void printListaAux(Lista * lista, char *nombre){
-  Elemento *elem;
-  if(lista->tam == 0){
-    printf("No hay elementos en la lista\n");
-    exit(0);
-  }
-  else{
-    elem = lista->ini;
-    while(elem!=NULL){
-      if(strcmp(elem->nombre,nombre)==0){
-        printListaPpal(elem->lista);
-        elem = NULL;
-      }
-      else{
-        elem = elem ->sig;
-      }
-    }
   }
 }
 
@@ -129,7 +128,7 @@ void printListaAux(Lista * lista, char *nombre){
  * return -1 ERROR
  * return 0 ENCONTRADO
  */
-Elemento * buscarPpal(Lista *lista, char * nombre){
+/*Elemento * buscarPpal(Lista *lista, char * nombre){
   Elemento *elem;
 
   if(lista->tam == 0)
@@ -145,9 +144,47 @@ Elemento * buscarPpal(Lista *lista, char * nombre){
     }
   }
   return NULL;
+}*/
+
+int eliminarPpalYAux(Lista * listaPpal,Lista * listaAux, char * nombre){
+  Elemento * elem, * aux;
+  Lista * del;
+  int elimino = 0;
+
+  if(listaPpal->tam == 0)
+    return -1;
+
+  elem = listaPpal->ini;
+  while(elem!=NULL){ // conseguir el nombre en la lista ppal
+    if(strcmp(elem->nombre,nombre)==0){ //nombre ppal encontrado
+      del = elem->lista;
+      elem = elem->lista->ini; // ini de la lista auxiliar para nombre ppal
+      aux = listaAux->ini; // ini de listaAux
+      while(elem!=NULL){
+        while(aux!=NULL){
+          if (strcmp(elem->nombre,aux->nombre)==0){
+            elimino = elimino + eliminar(aux->lista, nombre);
+            elem = elem->sig;
+            aux = listaAux->ini;
+            break;
+          }
+          else{
+            aux = aux->sig;
+          }
+        }
+      }
+      if(del!=NULL)
+        borrar(del);
+      return elimino;
+    }
+    else{ // nombre ppal no encontrado
+      elem = elem->sig;
+    }
+  }
+  return -1;
 }
 
-Elemento * buscarAux(Lista *lista, char * nombre, char * segunda){
+/*Elemento * buscarAux(Lista *lista, char * nombre, char * segunda){
   Elemento *elem;
 
   if(lista->tam == 0)
@@ -163,10 +200,11 @@ Elemento * buscarAux(Lista *lista, char * nombre, char * segunda){
     }
   }
   return NULL;
-}
+}*/
 
 int insertarAux(Lista *lista, char * nombreppal, char * nombreaux){
   Elemento *elem;
+  Lista * nueva;
 
   if(lista->tam == 0)
     return -1;
@@ -174,7 +212,12 @@ int insertarAux(Lista *lista, char * nombreppal, char * nombreaux){
   elem = lista->ini;
   while(elem!=NULL){
     if(strcmp(elem->nombre,nombreppal)==0){
-      return insertar(elem->lista, nombreaux, NULL);
+      if (elem->lista ==NULL){
+        nueva = (Lista *) malloc (sizeof(Lista));
+        nuevaLista(nueva);
+      }
+      elem->lista = nueva;
+      return insertar(nueva, nombreaux, NULL);
     }
     else{
       elem = elem->sig;
@@ -182,59 +225,3 @@ int insertarAux(Lista *lista, char * nombreppal, char * nombreaux){
   }
   return -1;
 }
-
-/*int main(){
-  Lista * usuarios;
-  usuarios = (Lista *) malloc (sizeof(Lista));
-  
-  Lista * salasMary;
-  salasMary = (Lista *) malloc (sizeof(Lista));
-
-  Lista * salasCarla;
-  salasCarla = (Lista *) malloc (sizeof(Lista));
-
-  Lista * salasOriana;
-  salasOriana = (Lista *) malloc (sizeof(Lista));
-
-  nuevaLista(usuarios);
-  nuevaLista(salasMary);
-  nuevaLista(salasCarla);
-  nuevaLista(salasOriana);
-
-  insertar(salasMary,"sala 1", NULL);
-  insertar(salasMary,"sala 2", NULL);
-  insertar(salasMary,"sala 3", NULL);
-
-  insertar(salasCarla,"sala 4", NULL);
-  insertar(salasCarla,"sala 5", NULL);
-
-  insertar(salasOriana,"sala 1", NULL);
-  insertar(salasOriana,"sala 2", NULL);
-  insertar(salasOriana,"sala 3", NULL);
-  insertar(salasOriana,"sala 4", NULL);
-  insertar(salasOriana,"sala 5", NULL);
-
-
-  insertar(usuarios,"Mary", salasMary);
-  insertar(usuarios,"Ivan", NULL);
-  insertar(usuarios,"Carla", salasCarla);
-  insertar(usuarios,"Oriana", salasOriana);
-  
-  printf("Usuarios:\n");
-  printListaPpal(usuarios);
-
-  printf("Salas de Carla:\n");
-  printListaAux(usuarios,"Carla");
-
-  printf("Salas de Mary:\n");
-  printListaAux(usuarios,"Mary");
-
-  printf("Salas de Orian:\n");
-  printListaAux(usuarios,"Oriana");  
-
-  printf("Salas de Ivan:\n");
-  printListaAux(usuarios,"Ivan");
-
-  borrar(usuarios);
-  free(usuarios);
-}*/

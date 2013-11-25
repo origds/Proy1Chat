@@ -4,10 +4,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include "procesarinstrucciones.h"
-#include "lista.h"
+//#include "lista.h"
 
-Lista *usuarios;
-Lista *salas;
+Lista * usuarios;
+Lista * salas;
 
 void generarInstrucciones(char * user, char * instruccion){
 
@@ -29,51 +29,6 @@ void generarInstrucciones(char * user, char * instruccion){
      strcpy(argumento, " ");
   }  
   procesarInstrucciones(user, comando, argumento);
-}
-
-int procesarInstrucciones (char * user, char * comando, char * argumento){
-	if (strcmp(comando,"sal")==0 && strcmp(argumento," ")==0) {
-		char * listasalas = funcionSalUsu(salas);
-		return 0;
-		//falta funcionMen
-	} else if (strcmp(comando,"usu")==0 && strcmp(argumento," ")==0) {
-		char * listausuarios;
-		listausuarios = funcionSalUsu(usuarios);
-		return 0;
-	} else if (strcmp(comando,"sus")==0 && strcmp(argumento," ")!=0) {
-		return funcionSus(user, argumento);
-	} else if (strcmp(comando,"des")==0 && strcmp(argumento," ")==0) {
-		return funcionDes(user);
-	} else if (strcmp(comando,"cre")==0 && strcmp(argumento," ")!=0) {
-		return funcionCre(argumento);
-	} else if (strcmp(comando,"eli")==0 && strcmp(argumento," ")!=0) {
-		return funcionEli(argumento);
-	}
-}	
-
-int crearUsuariosSalas(char *saladefecto) {
-	int a;
-	usuarios = (Lista *) malloc (sizeof(Lista));
-	nuevaLista(usuarios);
-	salas = (Lista *) malloc (sizeof(Lista));
-	nuevaLista(salas);
-	a = insertar(salas, saladefecto, NULL);
-}
-
-int crearUsusario(Lista *lista, char * nombre, char * sala){
-	int a, b;
-	//en menuschat debo verificar que si el nombre ya existe entonces debe ingresar otro.
-	Lista *salasuser;
-	salasuser = (Lista *) malloc (sizeof(Lista));
-	nuevaLista(salasuser);
-	a = insertar(salasuser, sala, NULL);
-	nuevaLista(usuarios);
-	b = insertar(lista, nombre, salasuser);
-	return (a+b);
-}
-
-int crearSala(char *sala) {
-	return insertar(salas, sala, NULL);
 }
 
 char * funcionSalUsu(Lista *lista){
@@ -98,6 +53,49 @@ char * funcionSalUsu(Lista *lista){
 	}
 
 	return elementos;
+}
+
+int procesarInstrucciones (char * user, char * comando, char * argumento){
+	if (strcmp(comando,"sal")==0 && strcmp(argumento," ")==0) {
+		char * listasalas = funcionSalUsu(salas);
+		printf("Salas: %s\n", listasalas);
+		return 0;
+		//falta funcionMen
+	} else if (strcmp(comando,"usu")==0 && strcmp(argumento," ")==0) {
+		char * listausuarios;
+		listausuarios = funcionSalUsu(usuarios);
+		printf("Usuarios: %s\n", listausuarios);
+		return 0;
+	} else if (strcmp(comando,"sus")==0 && strcmp(argumento," ")!=0) {
+		return funcionSus(user, argumento);
+	} else if (strcmp(comando,"des")==0 && strcmp(argumento," ")==0) {
+		return funcionDes(user);
+	} else if (strcmp(comando,"cre")==0 && strcmp(argumento," ")!=0) {
+		return funcionCre(argumento);
+	} else if (strcmp(comando,"eli")==0 && strcmp(argumento," ")!=0) {
+		return funcionEli(argumento);
+	}
+}	
+
+int crearUsuariosSalas(char *saladefecto) {
+	int a;
+	usuarios = (Lista *) malloc (sizeof(Lista));
+	nuevaLista(usuarios);
+	salas = (Lista *) malloc (sizeof(Lista));
+	nuevaLista(salas);
+	a = insertar(salas, saladefecto, NULL);
+}
+
+int crearUsuario(Lista *lista, char * nombre, char * sala){
+	int a, b;
+	//en menuschat debo verificar que si el nombre ya existe entonces debe ingresar otro.
+	Lista *salasuser;
+	salasuser = (Lista *) malloc (sizeof(Lista));
+	nuevaLista(salasuser);
+	a = insertar(salasuser, sala, NULL);
+	nuevaLista(usuarios);
+	b = insertar(lista, nombre, salasuser);
+	return (a+b);
 }
 
 /*char * funcionMen(char * user) {
@@ -134,27 +132,7 @@ int funcionSus(char * user, char* sala) {
 }
 
 int funcionDes(char * user){
-	Elemento * usuario, * salasuser, * del;
-	char * sala;
-	int borrado1, borrado2;
-	usuario = buscarPpal(usuarios, user);
-	salasuser = usuario->lista->ini;
-	while (salasuser!=NULL){
-		sala = salasuser->nombre;
-		del = buscarPpal(salas, sala);
-		if (del!=NULL) {
-			borrado1 = eliminar(del->lista, user);
-			if (borrado1==0) {
-				salasuser = salasuser->sig;
-			} else {
-				return -1;
-			} 
-		} else {
-			return -1;
-		}
-	}
-	borrado2 = eliminar(usuarios, user);
-	return (borrado1+borrado2); 
+	return eliminarPpalYAux(usuarios,salas,user);
 }
 
 int funcionCre(char * nombresala){
@@ -162,25 +140,5 @@ int funcionCre(char * nombresala){
 }
 
 int funcionEli(char * sala){
-	Elemento * room, * usersalas, * del;
-	char * usuario;
-	int a, borrado1, borrado2;
-	room = buscarPpal(salas, sala);
-	usersalas = room->lista->ini;
-	while (usersalas!=NULL){
-		usuario = usersalas->nombre;
-		del = buscarPpal(usuarios, usuario);
-		if (del!=NULL) {
-			borrado1 = eliminar(del->lista, sala);
-			if (borrado1==0) {
-				usersalas = usersalas->sig;
-			} else {
-				return -1;
-			} 
-		} else {
-			return -1;
-		}
-	}
-	borrado2 = eliminar(salas, sala);
-	return (borrado1+borrado2); 
+	return eliminarPpalYAux(salas,usuarios,sala);
 }
