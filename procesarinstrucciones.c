@@ -9,6 +9,9 @@
 Lista * usuarios;
 Lista * salas;
 
+/* Funcion que separa las instrucciones recibidas del cliente en comando y argumento
+   void */
+
 void generarInstrucciones(char * user, char * instruccion){
 
   char * token;
@@ -30,6 +33,9 @@ void generarInstrucciones(char * user, char * instruccion){
   }  
   procesarInstrucciones(user, comando, argumento);
 }
+
+/* Funcion que responde a sus y usu. Devuelve la lista de usuarios o salas
+   Retorna: char* */
 
 char * funcionSalUsu(Lista *lista){
 	Elemento * elem;
@@ -55,27 +61,8 @@ char * funcionSalUsu(Lista *lista){
 	return elementos;
 }
 
-int procesarInstrucciones (char * user, char * comando, char * argumento){
-	if (strcmp(comando,"sal")==0 && strcmp(argumento," ")==0) {
-		char * listasalas = funcionSalUsu(salas);
-		printf("Salas: %s\n", listasalas);
-		return 0;
-		//falta funcionMen
-	} else if (strcmp(comando,"usu")==0 && strcmp(argumento," ")==0) {
-		char * listausuarios;
-		listausuarios = funcionSalUsu(usuarios);
-		printf("Usuarios: %s\n", listausuarios);
-		return 0;
-	} else if (strcmp(comando,"sus")==0 && strcmp(argumento," ")!=0) {
-		return funcionSus(user, argumento);
-	} else if (strcmp(comando,"des")==0 && strcmp(argumento," ")==0) {
-		return funcionDes(user);
-	} else if (strcmp(comando,"cre")==0 && strcmp(argumento," ")!=0) {
-		return funcionCre(argumento);
-	} else if (strcmp(comando,"eli")==0 && strcmp(argumento," ")!=0) {
-		return funcionEli(argumento);
-	}
-}	
+/* Funcion que inicializa la lista de salas y usuarios
+   Retorna: int */
 
 int crearUsuariosSalas(char *saladefecto) {
 	int a;
@@ -86,16 +73,38 @@ int crearUsuariosSalas(char *saladefecto) {
 	a = insertar(salas, saladefecto, NULL);
 }
 
-int crearUsuario(Lista *lista, char * nombre, char * sala){
-	int a, b;
+
+/* Funcion que chequea si el usuario ya existe 
+   Return: int*/
+
+int existeUsuario(char * nombre, char * saladefecto) {
+	if (buscarPpal(usuarios, nombre)!=0) {
+		crearUsuario(nombre, saladefecto);
+		printf("USUARIOOOOS\n");
+		printListaPpal(usuarios);
+		printf("SALAAAS\n");
+		printListaPpal(salas);
+		return 0;
+	} else {
+		return -1;
+	}
+}
+
+/* Funcion que responde a cuando se recibe un nuevo cliente
+   Retorna: int */
+
+
+int crearUsuario(char * nombre, char * sala){
+	int a;
 	//en menuschat debo verificar que si el nombre ya existe entonces debe ingresar otro.
-	Lista *salasuser;
-	salasuser = (Lista *) malloc (sizeof(Lista));
-	nuevaLista(salasuser);
-	a = insertar(salasuser, sala, NULL);
-	nuevaLista(usuarios);
-	b = insertar(lista, nombre, salasuser);
-	return (a+b);
+	a = insertar(usuarios, nombre, NULL);
+	//printf("IMPRIMIENDO USUARIOS\n");
+	//printListaPpal(usuarios);
+	if (a==0) {
+		return funcionSus(nombre, sala);
+	}
+	printf("No pude crear usuario\n");
+	return -1;
 }
 
 /*char * funcionMen(char * user) {
@@ -122,6 +131,9 @@ int crearUsuario(Lista *lista, char * nombre, char * sala){
 	return (borrado1+borrado2); 
 }*/
 
+/* Funcion que responde a sus. Suscribe un usuario a una sala
+   Retorna: int */
+
 int funcionSus(char * user, char* sala) {
 	int a, b;
 	//a la lista de salas le agregamos el usuario que se suscribe a esa sala
@@ -131,14 +143,81 @@ int funcionSus(char * user, char* sala) {
 	return (a+b);
 }
 
-int funcionDes(char * user){
-	return eliminarPpalYAux(usuarios,salas,user);
-}
+/* Funcion que procesa las instrucciones recibidas del cliente 
+	Retorna: int */
 
-int funcionCre(char * nombresala){
-	return insertar(salas, nombresala, NULL);
-}
-
-int funcionEli(char * sala){
-	return eliminarPpalYAux(salas,usuarios,sala);
-}
+int procesarInstrucciones (char * user, char * comando, char * argumento){
+	int a;
+	if (strcmp(comando,"sal")==0 && strcmp(argumento," ")==0) {
+		char * listasalas;
+		listasalas = funcionSalUsu(salas);
+		//printf("Salas: %s\n", listasalas);
+		printf("USUARIOOOOS\n");
+		printListaPpal(usuarios);
+		printf("LISTA AUX\n");
+		printListaAuxCompleta(usuarios);
+		printf("SALAAAS\n");
+		printListaPpal(salas);
+		printf("LISTA AUX\n");
+		printListaAuxCompleta(salas);
+		return 0;
+		//falta funcionMen
+	} else if (strcmp(comando,"usu")==0 && strcmp(argumento," ")==0) {
+		char * listausuarios;
+		listausuarios = funcionSalUsu(usuarios);
+		//printf("Usuarios: %s\n", listausuarios);
+		printf("USUARIOOOOS\n");
+		printListaPpal(usuarios);
+		printf("LISTA AUX\n");
+		printListaAuxCompleta(usuarios);
+		printf("SALAAAS\n");
+		printListaPpal(salas);
+		printf("LISTA AUX\n");
+		printListaAuxCompleta(salas);
+		return 0;
+	} else if (strcmp(comando,"sus")==0 && strcmp(argumento," ")!=0) {
+		a = funcionSus(user, argumento);
+		printf("USUARIOOOOS\n");
+		printListaPpal(usuarios);
+		printf("LISTA AUX\n");
+		printListaAuxCompleta(usuarios);
+		printf("SALAAAS\n");
+		printListaPpal(salas);
+		printf("LISTA AUX\n");
+		printListaAuxCompleta(salas);
+		return a;
+	} else if (strcmp(comando,"des")==0 && strcmp(argumento," ")==0) {
+		a = eliminarPpalYAux(usuarios,salas,user);
+		printf("USUARIOOOOS\n");
+		printListaPpal(usuarios);
+		printf("LISTA AUX\n");
+		printListaAuxCompleta(usuarios);
+		printf("SALAAAS\n");
+		printListaPpal(salas);
+		printf("LISTA AUX\n");
+		printListaAuxCompleta(salas);
+		return a;
+	} else if (strcmp(comando,"cre")==0 && strcmp(argumento," ")!=0) {
+		a =  insertar(salas, argumento, NULL);
+		printf("USUARIOOOOS\n");
+		printListaPpal(usuarios);
+		printf("LISTA AUX\n");
+		printListaAuxCompleta(usuarios);
+		printf("SALAAAS\n");
+		printListaPpal(salas);
+		printf("LISTA AUX\n");
+		printListaAuxCompleta(salas);
+		return a;
+	} else if (strcmp(comando,"eli")==0 && strcmp(argumento," ")!=0) {
+		a =  eliminarPpalYAux(salas,usuarios,argumento);
+		printf("USUARIOOOOS\n");
+		printListaPpal(usuarios);
+		printf("LISTA AUX\n");
+		printListaAuxCompleta(usuarios);
+		printf("SALAAAS\n");
+		printListaPpal(salas);
+		printf("LISTA AUX\n");
+		printListaAuxCompleta(salas);
+		return a;
+	}
+}	

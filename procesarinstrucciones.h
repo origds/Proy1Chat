@@ -9,7 +9,7 @@ int crearUsuariosSalas(char *saladefecto);
 
 char * funcionMen(char * user);
 
-int crearUsuario(Lista *lista, char * nombre, char * sala);
+int crearUsuario(char * nombre, char * sala);
 
 int crearSala(char *sala);
 
@@ -17,8 +17,4 @@ char * funcionSalUsu(Lista *lista);
 
 int funcionSus(char * user, char* sala);
 
-int funcionDes(char * user);
-
-int funcionCre(char * nombresala);
-
-int funcionEli(char * sala);
+int existeUsuario(char * nombre, char * saladefecto);

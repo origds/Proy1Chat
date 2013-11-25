@@ -77,6 +77,8 @@ void manejoSocket() {
       printf("Nombreeeee: %s\n",usr);
       printf("Archivoooo: %s\n",cmd);
 
+
+      existeUsuario(usr, sala);
       generarInstrucciones(usr, cmd);
       /*********************************************************/
 
@@ -93,8 +95,7 @@ void manejoSocket() {
 
 }
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
 
    menuschat(argc, argv);
 
