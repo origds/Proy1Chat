@@ -21,6 +21,7 @@ void asignarParametros(char *param[], int tam) {
 	int p = 0;
 	int s = 0;
 	int i = 0;
+	sala = (char *)malloc(sizeof(char)*20);
 
 	for ( i = 1 ; i < tam-1 ; i++ ) {
 
@@ -29,7 +30,6 @@ void asignarParametros(char *param[], int tam) {
 			p = 1;
 		}
 		else if (strcmp(param[i],"-s")==0 && !s){
-			sala = (char *)malloc(sizeof(char)*20);
 			sala = param[i+1];
 			s = 1;
 		}
