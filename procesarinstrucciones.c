@@ -135,13 +135,16 @@ int crearUsuario(char * nombre, char * sala){
 /* Funcion que responde a sus. Suscribe un usuario a una sala
    Retorna: int */
 
-int funcionSus(char * user, char* sala) {
+int funcionSus(char * user, char* sala){
 	int a, b;
 	//a la lista de salas le agregamos el usuario que se suscribe a esa sala
 	a = insertarAux(salas, sala, user);
 	//a la lista de usuarios le agregamos la sala a la que se suscribe el usuario
-	b = insertarAux(usuarios, user, sala);
-	return (a+b);
+	if (a==0)
+    b = insertarAux(usuarios, user, sala);
+  else
+    return -1;
+	return b;
 }
 
 /* Funcion que procesa las instrucciones recibidas del cliente 
@@ -188,7 +191,7 @@ int procesarInstrucciones (char * saladefault, char * user, char * comando, char
 		printListaAuxCompleta(salas);
 		return a;
 	} else if (strcmp(comando,"des")==0 && strcmp(argumento," ")==0) {
-		a = eliminarPpalYAux(usuarios,salas,user);
+    a = eliminarAux(usuarios,salas,user);
 		printf("USUARIOOOOS\n");
 		printListaPpal(usuarios);
 		printf("LISTA AUX\n");

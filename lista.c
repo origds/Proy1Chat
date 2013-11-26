@@ -27,7 +27,7 @@ void printListaPpal(Lista * lista){
 
 void printListaAux(Lista * lista, char *nombre){
   Elemento *elem;
-  if(lista->tam == 0){
+  if(lista == NULL || lista->tam == 0){
     printf("No hay elementos en la lista\n");
   } 
   else{
@@ -46,7 +46,7 @@ void printListaAux(Lista * lista, char *nombre){
 
 void printListaAuxCompleta(Lista * lista) {
   Elemento * elem;
-  if(lista->tam == 0){
+  if(lista == NULL || lista->tam == 0){
     printf("No hay elementos en la lista\n");
   }
   else { 
@@ -171,26 +171,33 @@ int eliminarPpalYAux(Lista * listaPpal,Lista * listaAux, char * nombre){
   while(elem!=NULL){ // conseguir el nombre en la lista ppal
     if(strcmp(elem->nombre,nombre)==0){ //nombre ppal encontrado
       ppal = elem;
-      del = elem->lista;
-      elem = elem->lista->ini; // ini de la lista auxiliar para nombre ppal
-      aux = listaAux->ini; // ini de listaAux
-      while(elem!=NULL){
-        while(aux!=NULL){
-          if (strcmp(elem->nombre,aux->nombre)==0){
-            elimino = elimino + eliminar(aux->lista, nombre);
-            elem = elem->sig;
-            aux = listaAux->ini;
-            break;
-          }
-          else{
-            aux = aux->sig;
+
+      if (elem->lista !=NULL && elem->lista->ini!=NULL){
+        del = elem->lista;
+
+        elem = elem->lista->ini; // ini de la lista auxiliar para nombre ppal
+        
+        aux = listaAux->ini; // ini de listaAux
+        while(elem!=NULL){
+          while(aux!=NULL){
+            if (strcmp(elem->nombre,aux->nombre)==0){
+              elimino = elimino + eliminar(aux->lista, nombre);
+              elem = elem->sig;
+              aux = listaAux->ini;
+              break;
+            }
+            else{
+              aux = aux->sig;
+            }
           }
         }
-      }
-      if(del!=NULL)
-        borrar(del);
+        if(del!=NULL)
+          borrar(del);
+        ppal->lista = NULL;
         eliminar(listaPpal,ppal->nombre);
-      return elimino;
+        return elimino;
+      }
+      return eliminar(listaPpal,ppal->nombre);
     }
     else{ // nombre ppal no encontrado
       elem = elem->sig;
@@ -199,23 +206,52 @@ int eliminarPpalYAux(Lista * listaPpal,Lista * listaAux, char * nombre){
   return -1;
 }
 
-/*Elemento * buscarAux(Lista *lista, char * nombre, char * segunda){
-  Elemento *elem;
+int eliminarAux(Lista * listaPpal,Lista * listaAux, char * nombre){
+  Elemento * elem, * aux, *ppal;
+  Lista * del;
+  int elimino = 0;
 
-  if(lista->tam == 0)
+  if(listaPpal->tam == 0)
     return -1;
 
-  elem = lista->ini;
-  while(elem!=NULL){
-    if(strcmp(elem->nombre,nombre)==0){
-      return buscarPpal(elem->lista,segunda);
+  elem = listaPpal->ini;
+  while(elem!=NULL){ // conseguir el nombre en la lista ppal
+    if(strcmp(elem->nombre,nombre)==0){ //nombre ppal encontrado
+      ppal = elem;
+
+      if (elem->lista !=NULL && elem->lista->ini!=NULL){
+        del = elem->lista;
+
+        elem = elem->lista->ini; // ini de la lista auxiliar para nombre ppal
+        
+        aux = listaAux->ini; // ini de listaAux
+        while(elem!=NULL){
+          while(aux!=NULL){
+            if (strcmp(elem->nombre,aux->nombre)==0){
+              elimino = elimino + eliminar(aux->lista, nombre);
+              elem = elem->sig;
+              aux = listaAux->ini;
+              break;
+            }
+            else{
+              aux = aux->sig;
+            }
+          }
+        }
+        if(del!=NULL)
+          borrar(del);
+        ppal->lista = NULL;
+        return elimino;
+      }
+      return -1;
     }
-    else{
+    else{ // nombre ppal no encontrado
       elem = elem->sig;
     }
   }
-  return NULL;
-}*/
+  return -1;
+}
+
 
 int insertarAux(Lista *lista, char * nombreppal, char * nombreaux){
   Elemento *elem;
