@@ -108,28 +108,29 @@ int crearUsuario(char * nombre, char * sala){
 	return -1;
 }
 
-/*char * funcionMen(char * user) {
-	Elemento * usuario, salasuser, del;
-	char * sala;
-	int borrado1, borrado2;
-	usuario = buscarPpal(usuarios, user);
-	salasuser = usuario->lista->ini;
-	while (salasuser!=NULL){
-		sala = salauser->nombre;
-		del = buscarPpal(salas, sala);
-		if (del!=NULL) {
-			borrado1 = eliminar(del->lista, user);
-			if (borrado1==0) {
-				salauser = salauser->sig;
-			} else {
-				return -1;
-			} 
-		} else {
-			return -1;
+/* Funcion Mensaje que retorna la lista de fd a la que se enviara el mensaje */
+
+/*int * funcionMen(char * user, char * saladefecto) {
+	Lista * difundir;
+	Elemento * elem;
+	int * fdusuarios;
+	difundir = (Lista *)malloc(sizeof(Lista));
+	fdusuarios = (int *)malloc(sizeof(int)*300);
+
+	difundir = buscarPpalLista(salas, saladefecto);
+
+	elem = difundir->ini;
+	if (elem==NULL) {	
+		printf("No hay nadie a quien enviarle el mensaje\n");
+		return NULL;
+	} else {
+		int i = 0;
+		while (elem!=NULL) {
+			fdusuarios[i] = elem->fd;
+			elem = elem->sig;
 		}
+		return fdusuarios;
 	}
-	borrado2 = eliminar(usuarios, user);
-	return (borrado1+borrado2); 
 }*/
 
 /* Funcion que responde a sus. Suscribe un usuario a una sala
@@ -155,7 +156,6 @@ int procesarInstrucciones (char * saladefault, char * user, char * comando, char
 	if (strcmp(comando,"sal")==0 && strcmp(argumento," ")==0) {
 		char * listasalas;
 		listasalas = funcionSalUsu(salas);
-		//printf("Salas: %s\n", listasalas);
 		printf("USUARIOOOOS\n");
 		printListaPpal(usuarios);
 		printf("LISTA AUX\n");
@@ -169,7 +169,6 @@ int procesarInstrucciones (char * saladefault, char * user, char * comando, char
 	} else if (strcmp(comando,"usu")==0 && strcmp(argumento," ")==0) {
 		char * listausuarios;
 		listausuarios = funcionSalUsu(usuarios);
-		//printf("Usuarios: %s\n", listausuarios);
 		printf("USUARIOOOOS\n");
 		printListaPpal(usuarios);
 		printf("LISTA AUX\n");

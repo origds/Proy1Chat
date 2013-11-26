@@ -7,7 +7,7 @@ int procesarInstrucciones (char * saladefault, char * user, char * comando, char
 
 int crearUsuariosSalas(char *saladefecto);
 
-char * funcionMen(char * user);
+int * funcionMen(char * user, char * saladefecto);
 
 int crearUsuario(char * nombre, char * sala);
 
