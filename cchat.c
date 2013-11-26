@@ -101,6 +101,12 @@ void lectorArchivo(FILE * in, int bytes, Mensaje msj) {
 
       if ((strcmp(lineaTemporal, "fue\n")==0) || (strcmp(lineaTemporal, "fue")==0)){
         fue = 1;
+        bzero(msj.contenidoMensaje, sizeof(msj.contenidoMensaje));
+        strcpy(msj.contenidoMensaje, "fue ");
+        strcat(msj.contenidoMensaje, user);
+        printf("CONTENIDO MENSAJE %s\n", msj.contenidoMensaje);
+        socketcliente = conectarSocket();
+        enviarPeticion(socketcliente, msj);  
         break;
       }
 
@@ -151,6 +157,10 @@ int main(int argc, char *argv[]) {
         }
       printf("comando %s\n", msjcliente.contenidoMensaje);
       if (strcmp(msjcliente.contenidoMensaje, "fue")==0) {
+        strcat(msjcliente.contenidoMensaje, " ");
+        strcat(msjcliente.contenidoMensaje, msjcliente.nombreuser);
+        socketcliente = conectarSocket();
+        enviarPeticion(socketcliente, msjcliente);
         return(0);
       } else {
         socketcliente = conectarSocket();

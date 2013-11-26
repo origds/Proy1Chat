@@ -79,7 +79,7 @@ void manejoSocket() {
 
 
       existeUsuario(usr, sala);
-      generarInstrucciones(usr, cmd);
+      generarInstrucciones(sala, usr, cmd);
       /*********************************************************/
 
       printf("Se obtuvo una conexión desde %d\n",

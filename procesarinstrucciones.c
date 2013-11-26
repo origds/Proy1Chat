@@ -12,7 +12,7 @@ Lista * salas;
 /* Funcion que separa las instrucciones recibidas del cliente en comando y argumento
    void */
 
-void generarInstrucciones(char * user, char * instruccion){
+void generarInstrucciones(char * saladefault, char * user, char * instruccion){
 
   char * token;
   char * comando;
@@ -23,7 +23,8 @@ void generarInstrucciones(char * user, char * instruccion){
 
   token = strtok (instruccion,"\n");
   token = strtok(token," ");
-  if(token!=NULL && (strcmp(token,"men")==0 || strcmp(token,"sus")==0 || strcmp(token,"cre")==0 || strcmp(token,"eli")==0)){
+  if(token!=NULL && (strcmp(token,"men")==0 || strcmp(token,"sus")==0 || strcmp(token,"cre")==0 
+  	|| strcmp(token,"eli")==0 || strcmp(token,"fue")==0)) {
      strcpy(comando, token);
      token = strtok (NULL,"\n");
      strcpy(argumento, token);
@@ -31,7 +32,7 @@ void generarInstrucciones(char * user, char * instruccion){
      strcpy(comando, token);
      strcpy(argumento, " ");
   }  
-  procesarInstrucciones(user, comando, argumento);
+  procesarInstrucciones(saladefault, user, comando, argumento);
 }
 
 /* Funcion que responde a sus y usu. Devuelve la lista de usuarios o salas
@@ -146,7 +147,7 @@ int funcionSus(char * user, char* sala) {
 /* Funcion que procesa las instrucciones recibidas del cliente 
 	Retorna: int */
 
-int procesarInstrucciones (char * user, char * comando, char * argumento){
+int procesarInstrucciones (char * saladefault, char * user, char * comando, char * argumento){
 	int a;
 	if (strcmp(comando,"sal")==0 && strcmp(argumento," ")==0) {
 		char * listasalas;
@@ -209,7 +210,22 @@ int procesarInstrucciones (char * user, char * comando, char * argumento){
 		printListaAuxCompleta(salas);
 		return a;
 	} else if (strcmp(comando,"eli")==0 && strcmp(argumento," ")!=0) {
-		a =  eliminarPpalYAux(salas,usuarios,argumento);
+		if (strcmp(argumento, saladefault)==0) {
+			printf("No se puede eliminar la sala por defecto\n");
+		} else {
+			a =  eliminarPpalYAux(salas,usuarios,argumento);
+		}
+		printf("USUARIOOOOS\n");
+		printListaPpal(usuarios);
+		printf("LISTA AUX\n");
+		printListaAuxCompleta(usuarios);
+		printf("SALAAAS\n");
+		printListaPpal(salas);
+		printf("LISTA AUX\n");
+		printListaAuxCompleta(salas);
+		return a;
+	} else if (strcmp(comando,"fue")==0 && strcmp(argumento," ")!=0) {
+		a =  eliminarPpalYAux(usuarios,salas,argumento);
 		printf("USUARIOOOOS\n");
 		printListaPpal(usuarios);
 		printf("LISTA AUX\n");

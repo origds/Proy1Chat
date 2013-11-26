@@ -1,9 +1,9 @@
 /* Descripcion de todas las funciones de procesarInstrucciones */
 #include "lista.h"
 
-void generarInstrucciones(char * user, char * instruccion);
+void generarInstrucciones(char* saladefault, char * user, char * instruccion);
 
-int procesarInstrucciones (char * user, char * comando, char * argumento);
+int procesarInstrucciones (char * saladefault, char * user, char * comando, char * argumento);
 
 int crearUsuariosSalas(char *saladefecto);
 
