@@ -3,12 +3,15 @@
 #include <string.h>
 #include "lista.h"
 
+/**/
 
 void nuevaLista (Lista *lista){
   lista->ini = NULL;
   lista->fin = NULL;
   lista->tam = 0;
 }
+
+/**/
 
 void printListaPpal(Lista * lista){
   Elemento *elem;
@@ -24,6 +27,8 @@ void printListaPpal(Lista * lista){
     }
   }
 }
+
+/**/
 
 void printListaAux(Lista * lista, char *nombre){
   Elemento *elem;
@@ -44,6 +49,8 @@ void printListaAux(Lista * lista, char *nombre){
   }
 }
 
+/**/
+
 void printListaAuxCompleta(Lista * lista) {
   Elemento * elem;
   if(lista == NULL || lista->tam == 0){
@@ -58,6 +65,8 @@ void printListaAuxCompleta(Lista * lista) {
     }
   }
 }
+
+/**/
 
 int insertar (Lista * lista, char *nombre, Lista * asoc){
   Elemento *elem;
@@ -83,6 +92,8 @@ int insertar (Lista * lista, char *nombre, Lista * asoc){
   }
   return 0;
 }
+
+/**/
 
 int eliminar(Lista *lista, char * nombre){
   Elemento *sup_elemento;
@@ -121,6 +132,8 @@ int eliminar(Lista *lista, char * nombre){
   return -1;
 }
 
+/**/
+
 int borrar(Lista *lista){
   Elemento *elem;
   while (lista->ini != NULL){
@@ -137,10 +150,10 @@ int borrar(Lista *lista){
   }
 }
 
-/*
- * return -1 ERROR
- * return 0 ENCONTRADO
- */
+
+ /* Funcion que busca en la lista un elemento 
+    Return -1 ERROR  ENCONTRADO */
+
 int buscarPpal(Lista *lista, char * nombre){
   Elemento *elem;
 
@@ -158,6 +171,29 @@ int buscarPpal(Lista *lista, char * nombre){
   }
   return -1;
 }
+
+/* Funcion que busca en la lista un elemento
+   Retorna la lista auxiliar de dicho elemento */
+
+Lista * buscarPpalLista(Lista *lista, char * nombre){
+  Elemento *elem;
+
+  if(lista->tam == 0)
+    return NULL;
+
+  elem = lista->ini;
+  while(elem!=NULL){
+    if(strcmp(elem->nombre,nombre)==0){
+      return elem->lista;
+    }
+    else{
+      elem = elem->sig;
+    }
+  }
+  return NULL;
+}
+
+/**/
 
 int eliminarPpalYAux(Lista * listaPpal,Lista * listaAux, char * nombre){
   Elemento * elem, * aux, *ppal;
@@ -206,6 +242,8 @@ int eliminarPpalYAux(Lista * listaPpal,Lista * listaAux, char * nombre){
   return -1;
 }
 
+
+/**/
 int eliminarAux(Lista * listaPpal,Lista * listaAux, char * nombre){
   Elemento * elem, * aux, *ppal;
   Lista * del;
@@ -252,7 +290,7 @@ int eliminarAux(Lista * listaPpal,Lista * listaAux, char * nombre){
   return -1;
 }
 
-
+/**/
 int insertarAux(Lista *lista, char * nombreppal, char * nombreaux){
   Elemento *elem;
   Lista * nueva;

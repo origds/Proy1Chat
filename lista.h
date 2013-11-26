@@ -24,6 +24,6 @@ void printListaPpal(Lista * lista);
 void printListaAux(Lista * lista, char *nombre);
 void printListaAuxCompleta(Lista * lista);
 int buscar(Lista *lista, char * nombre);
-Elemento * buscarAux(Lista *lista, char * nombre, char * segunda);
+Lista * buscarPpalLista(Lista *lista, char * nombre);
 int eliminarPpalYAux(Lista * listaPpal,Lista * listaAux, char * nombre);
 int eliminarAux(Lista * listaPpal,Lista * listaAux, char * nombre);
