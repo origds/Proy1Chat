@@ -59,7 +59,7 @@ void printListaAuxCompleta(Lista * lista) {
   }
 }
 
-int insertar (Lista * lista, char *nombre, Lista * asoc){
+int insertar (Lista * lista, char *nombre, int fd, Lista * asoc){
   Elemento *elem;
   if ((elem = (Elemento *) malloc (sizeof(Elemento))) == NULL)
     return -1;
@@ -67,6 +67,7 @@ int insertar (Lista * lista, char *nombre, Lista * asoc){
     return -1;
   strcpy (elem->nombre, nombre);
   elem->lista = asoc;
+  elem->fd = fd;
   if(lista->tam==0){
     elem->ant = lista->ini;
     elem->sig = lista->fin;
@@ -267,9 +268,9 @@ int insertarAux(Lista *lista, char * nombreppal, char * nombreaux){
         nueva = (Lista *) malloc (sizeof(Lista));
         nuevaLista(nueva);
         elem->lista = nueva;
-        return insertar(nueva, nombreaux, NULL);
+        return insertar(nueva, nombreaux, 0,NULL);
       }
-      return insertar(elem->lista,nombreaux,NULL);
+      return insertar(elem->lista,nombreaux, 0,NULL);
     }
     else{
       elem = elem->sig;

@@ -71,16 +71,16 @@ int crearUsuariosSalas(char *saladefecto) {
 	nuevaLista(usuarios);
 	salas = (Lista *) malloc (sizeof(Lista));
 	nuevaLista(salas);
-	a = insertar(salas, saladefecto, NULL);
+	a = insertar(salas, saladefecto, 0,NULL);
 }
 
 
 /* Funcion que chequea si el usuario ya existe 
    Return: int*/
 
-int existeUsuario(char * nombre, char * saladefecto) {
+int existeUsuario(char * nombre, char * saladefecto, int fd) {
 	if (buscarPpal(usuarios, nombre)!=0) {
-		crearUsuario(nombre, saladefecto);
+		crearUsuario(nombre, saladefecto,fd);
 		printf("USUARIOOOOS\n");
 		printListaPpal(usuarios);
 		printf("SALAAAS\n");
@@ -95,10 +95,10 @@ int existeUsuario(char * nombre, char * saladefecto) {
    Retorna: int */
 
 
-int crearUsuario(char * nombre, char * sala){
+int crearUsuario(char * nombre, char * sala, int fd){
 	int a;
 	//en menuschat debo verificar que si el nombre ya existe entonces debe ingresar otro.
-	a = insertar(usuarios, nombre, NULL);
+	a = insertar(usuarios, nombre, fd,NULL);
 	//printf("IMPRIMIENDO USUARIOS\n");
 	//printListaPpal(usuarios);
 	if (a==0) {
@@ -202,7 +202,7 @@ int procesarInstrucciones (char * saladefault, char * user, char * comando, char
 		printListaAuxCompleta(salas);
 		return a;
 	} else if (strcmp(comando,"cre")==0 && strcmp(argumento," ")!=0) {
-		a =  insertar(salas, argumento, NULL);
+		a =  insertar(salas, argumento, 0, NULL);
 		printf("USUARIOOOOS\n");
 		printListaPpal(usuarios);
 		printf("LISTA AUX\n");

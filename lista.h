@@ -5,6 +5,7 @@
 
 typedef struct nodo {
   char *nombre;
+  int fd;
   struct ListaId *lista;
   struct nodo *sig;
   struct nodo *ant;
@@ -17,7 +18,7 @@ typedef struct ListaId{
 }Lista;
 
 void nuevaLista (Lista *lista);
-int insertar (Lista * lista, char *nombre, Lista * asoc);
+int insertar (Lista * lista, char *nombre, int fd, Lista * asoc);
 int eliminar(Lista *lista, char * nombre);
 int borrar(Lista *lista);
 void printListaPpal(Lista * lista);
