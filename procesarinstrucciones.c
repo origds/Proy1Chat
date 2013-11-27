@@ -110,7 +110,7 @@ int crearUsuario(char * nombre, char * sala, int fd){
 
 /* Funcion Mensaje que retorna la lista de fd a la que se enviara el mensaje */
 
-/*int * funcionMen(char * user, char * saladefecto) {
+int * funcionMen(char * user, char * saladefecto) {
 	Lista * difundir;
 	Elemento * elem;
 	int * fdusuarios;
@@ -131,7 +131,7 @@ int crearUsuario(char * nombre, char * sala, int fd){
 		}
 		return fdusuarios;
 	}
-}*/
+}
 
 /* Funcion que responde a sus. Suscribe un usuario a una sala
    Retorna: int */

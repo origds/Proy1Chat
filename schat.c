@@ -30,7 +30,7 @@ void manejoSocket() {
 
    servidor.sin_family = AF_INET;         
    servidor.sin_port = htons(PORT);
-   servidor.sin_addr.s_addr = inet_addr("127.0.0.1"); /* INADDR_ANY coloca nuestra dirección IP automáticamente */
+   servidor.sin_addr.s_addr = INADDR_ANY; /* inet_addr("127.0.0.1") coloca nuestra dirección IP automáticamente */
 
    bzero(&(servidor.sin_zero),8); 
 
