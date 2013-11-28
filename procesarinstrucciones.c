@@ -80,7 +80,7 @@ int crearUsuariosSalas(char *saladefecto) {
 
 int existeUsuario(char * nombre, char * saladefecto, int fd) {
 	if (buscarPpal(usuarios, nombre)!=0) {
-		crearUsuario(nombre, saladefecto,fd);
+		crearUsuario(nombre, saladefecto, fd);
 		printf("USUARIOOOOS\n");
 		printListaPpal(usuarios);
 		printf("SALAAAS\n");
