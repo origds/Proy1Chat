@@ -1,18 +1,43 @@
+/* Archivo: lista.c
+ * Autores: Oriana Gomez   09-10336
+ *          Ivan Travecedo 08-11131
+ * Descripcion: Implementacion de las listas para el manejo de salas y usuarios.
+ *              Implementacion de las listas de hilos.
+ */
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "lista.h"
 
-/**/
+/* Variable para inicializar los mutex de listas 
+ * de usuarios y salas
+ */
+pthread_mutex_t mutex1= PTHREAD_MUTEX_INITIALIZER;
 
+/* Procedimiento: nuevaLista
+ * Descripcion: Inicializa una lista
+ * Parametro: Lista que se va a inicializar
+ */
 void nuevaLista (Lista *lista){
+  lista->ini = NULL;
+  lista->fin = NULL;
+  lista->tam = 0;
+  lista->mutex = mutex1;
+}
+
+void nuevaListaT (ListaThread *lista){
   lista->ini = NULL;
   lista->fin = NULL;
   lista->tam = 0;
 }
 
-/**/
-
+/* Procedimiento: printListaPPal
+ * Descripcion: Imprime los nombres de salas/usuarios
+ * Parametro: Lista (de usuarios o salas) de donde se
+ *            va a imprimir
+ */
 void printListaPpal(Lista * lista){
   Elemento *elem;
 
@@ -28,8 +53,15 @@ void printListaPpal(Lista * lista){
   }
 }
 
-/**/
-
+/* Procedimiento: printListaAux
+ * Descripcion: Imprime los nombres de salas/usuarios
+ *              que tiene asociado una sala o un usuario
+ *              en especifico
+ * Parametro: Lista * lista: (de usuarios o salas) de donde se
+ *                            va a imprimir
+ *            char * nombre: nombre de sala/usuario al que se le
+ *                           imprimiran sus salas/usuarios
+ */
 void printListaAux(Lista * lista, char *nombre){
   Elemento *elem;
   if(lista == NULL || lista->tam == 0){
@@ -51,7 +83,7 @@ void printListaAux(Lista * lista, char *nombre){
 
 /**/
 
-void printListaAuxCompleta(Lista * lista) {
+/*void printListaAuxCompleta(Lista * lista) {
   Elemento * elem;
   if(lista == NULL || lista->tam == 0){
     printf("No hay elementos en la lista\n");
@@ -64,9 +96,21 @@ void printListaAuxCompleta(Lista * lista) {
         elem = elem ->sig;
     }
   }
-}
+}*/
 
-/**/
+/* Procedimiento: insertar
+ * Descripcion: Inserta un nuevo usuario/lista a las listas
+ *              generales. Si es un usuario, se guarda junto
+ *              al filedescriptor de su socket asociado.
+ * Parametro: Lista * lista: donde se va agregar
+ *            char * nombre: nombre de sala/usuario a agregar
+ *            int fd: filedescriptor del usuario (si es una sala
+ *            se guarda con -1)
+ *            Lista * asoc: lista asociada de salas/usuarios para
+ *            "nombre"
+ * Retorna: -1 en caso de error
+ *          0 si no hay error
+ */
 
 int insertar (Lista * lista, char *nombre, int fd, Lista * asoc){
   Elemento *elem;
@@ -94,46 +138,93 @@ int insertar (Lista * lista, char *nombre, int fd, Lista * asoc){
   return 0;
 }
 
-/**/
+/* Funcion: insertarT
+ * Descripcion: Inserta un nuevo hilo a la lista con su
+ *              identificador asociadao y el filedescriptor que
+ *              atiende
+ * Parametro: ListaThread * lista: donde se va agregar
+ *            pthread_t id: id del hilo
+ *            int fd: filedescriptor del usuario que le hilo
+ *                    atiende
+ * Retorna: -1 en caso de error
+ *          0 si no hay error
+ */
+
+int insertarT (ListaThread * lista, pthread_t id, int fd){
+  Thread *elem;
+  if ((elem = (Thread *) malloc (sizeof(Thread))) == NULL)
+    return -1;
+  elem->id = id;
+  elem->fd = fd;
+  if(lista->tam==0){
+    elem->ant = lista->ini;
+    elem->sig = lista->fin;
+    lista->ini = elem;
+    lista->fin = elem;
+    lista->tam++;
+  }
+  else{
+    elem->ant = NULL;
+    elem->sig = lista->ini;
+    lista->ini->ant = elem;
+    lista->ini = elem;
+    lista->tam++;
+  }
+  return 0;
+}
+
+/* Funcion: eliminar
+ * Descripcion: Elimina un usuario/sala de las listas de
+ *              usuarios/salas
+ * Parametro: Lista * lista: donde se va a eliminar
+ *            char * nombre: nombre de la sala/usuario a eliminar
+ * Retorna: -1 en caso de error
+ *          0 si no hay error
+ */
 
 int eliminar(Lista *lista, char * nombre){
-  Elemento *sup_elemento;
+  Elemento *elem;
 
   if(lista->tam == 0)
     return -1;
 
-  sup_elemento = lista->ini;
-  while(sup_elemento!=NULL){
-    if(strcmp(sup_elemento->nombre,nombre)==0){
-      if(sup_elemento->ant == NULL){
-        lista->ini = sup_elemento->sig;
-        if(sup_elemento->sig!=NULL)
-          sup_elemento->sig->ant = sup_elemento->ant;
+  elem = lista->ini;
+  while(elem!=NULL){
+    if(strcmp(elem->nombre,nombre)==0){
+      if(elem->ant == NULL){
+        lista->ini = elem->sig;
+        if(elem->sig!=NULL)
+          elem->sig->ant = elem->ant;
       }
-      if (sup_elemento-> sig == NULL){
-        if(sup_elemento->ant!=NULL)
-          sup_elemento->ant->sig = NULL;
-        lista->fin = sup_elemento->ant;
+      if (elem-> sig == NULL){
+        if(elem->ant!=NULL)
+          elem->ant->sig = NULL;
+        lista->fin = elem->ant;
       }
-      if(sup_elemento->ant!=NULL && sup_elemento->sig!=NULL){
-        sup_elemento->ant->sig = sup_elemento->sig;
-        sup_elemento->sig->ant = sup_elemento->ant;
+      if(elem->ant!=NULL && elem->sig!=NULL){
+        elem->ant->sig = elem->sig;
+        elem->sig->ant = elem->ant;
       }
-      if(sup_elemento->lista!=NULL)
-        borrar(sup_elemento->lista);
-      free(sup_elemento->nombre);
-      free(sup_elemento);
+      if(elem->lista!=NULL)
+        borrar(elem->lista);
+      free(elem->nombre);
+      free(elem);
       lista->tam--;
       return 0;
     }
     else{
-      sup_elemento = sup_elemento->sig;
+      elem = elem->sig;
     }
   }
   return -1;
 }
 
-/**/
+/* Funcion: borrar
+ * Descripcion: Borra una lista completa liberando memoria
+ * Parametro: Lista * lista: lista a borrar
+ * Retorna: -1 en caso de error
+ *          0 si no hay error
+ */
 
 int borrar(Lista *lista){
   Elemento *elem;
@@ -151,9 +242,27 @@ int borrar(Lista *lista){
   }
 }
 
+/*int borrarT(ListaThread *lista){
+  Thread *elem;
+  while (lista->ini != NULL){
+    elem = lista->ini;
+    lista->ini = lista->ini->sig;
+    if(elem->sig!=NULL){
+      elem->sig->ant=NULL;
+    }
+    free(elem);
+  }
+}*/
 
- /* Funcion que busca en la lista un elemento 
-    Return -1 ERROR  ENCONTRADO */
+
+/* Funcion: buscarPpal
+ * Descripcion: Busca en la lista de usuarios/salas
+ *              un usuario/sala.
+ * Parametro: Lista * lista: lista en la que se buscara
+ *            char * nombre: nombre de usuario/sala a buscar
+ * Retorna: -1 si no lo encuentra
+ *          0 si si lo encuentra
+ */
 
 int buscarPpal(Lista *lista, char * nombre){
   Elemento *elem;
@@ -173,8 +282,14 @@ int buscarPpal(Lista *lista, char * nombre){
   return -1;
 }
 
-/* Funcion que busca en la lista un elemento
-   Retorna la lista auxiliar de dicho elemento */
+/* Funcion: buscarPpalLista
+ * Descripcion: Busca en la lista de usuarios/salas
+ *              un usuario/sala y devuelve su lista de
+ *              usuarios/salas asociada
+ * Parametro: Lista * lista: lista en la que se buscara
+ *            char * nombre: nombre de usuario/sala a buscar
+ * Retorna: Lista *: lista asociada
+ */
 
 Lista * buscarPpalLista(Lista *lista, char * nombre){
   Elemento *elem;
@@ -194,7 +309,17 @@ Lista * buscarPpalLista(Lista *lista, char * nombre){
   return NULL;
 }
 
-/**/
+/* Funcion: eliminarPpalYAux
+ * Descripcion: Caso1: Elimina un usuario y lo saca de la lista de usuarios
+ *              de todas las salas a las que esta suscrito
+ *              Caso2: Elimina una sala y la saca de todos los usuarios que
+ *              estan suscritos a ella
+ * Parametro: Lista * listaPpal: lista en la que se buscara inicialmente
+ *            Lista * listaAux: lista en la que se buscaran las asociaciones
+ *            char * nombre: nombre de usuario/sala a buscar
+ * Retorna: -1 en caso de error
+ *          0 en caso satisfactorio
+ */
 
 int eliminarPpalYAux(Lista * listaPpal,Lista * listaAux, char * nombre){
   Elemento * elem, * aux, *ppal;
@@ -244,7 +369,14 @@ int eliminarPpalYAux(Lista * listaPpal,Lista * listaAux, char * nombre){
 }
 
 
-/**/
+/* Funcion: eliminarAux
+ * Descripcion: Elimina la lista auxiliar de un usuario/sala
+ * Parametro: Lista * listaPpal: lista en la que se buscara inicialmente
+ *            Lista * listaAux: lista en la que se buscaran las asociaciones
+ *            char * nombre: nombre de usuario/sala a buscar
+ * Retorna: -1 en caso de error
+ *          0 en caso satisfactorio
+ */
 int eliminarAux(Lista * listaPpal,Lista * listaAux, char * nombre){
   Elemento * elem, * aux, *ppal;
   Lista * del;
@@ -291,8 +423,17 @@ int eliminarAux(Lista * listaPpal,Lista * listaAux, char * nombre){
   return -1;
 }
 
-/**/
-int insertarAux(Lista *lista, char * nombreppal, char * nombreaux){
+/* Funcion: insertarAux
+ * Descripcion: Inserta en la lista auxiliar de un usuario/sala
+ * Parametro: Lista * lista: lista en la que se buscara inicialmente
+ *            char * nombreppal: nombre a buscar e insertar en su lista asociada
+ *            char * nombreaux: nombre a ser introducido en la lista auxiliar
+ *            int fd: fildescriptor del usuario en caso de estar introduciendo
+ *                    un usuario a una sala
+ * Retorna: -1 en caso de error
+ *          0 en caso satisfactorio
+ */
+int insertarAux(Lista *lista, char * nombreppal, char * nombreaux, int fd){
   Elemento *elem;
   Lista * nueva;
 
@@ -306,9 +447,13 @@ int insertarAux(Lista *lista, char * nombreppal, char * nombreaux){
         nueva = (Lista *) malloc (sizeof(Lista));
         nuevaLista(nueva);
         elem->lista = nueva;
-        return insertar(nueva, nombreaux, 0,NULL);
+        return insertar(nueva, nombreaux, fd, NULL);
       }
-      return insertar(elem->lista,nombreaux, 0,NULL);
+      else{
+        if(buscarPpal(elem->lista,nombreaux)!=0)
+          return insertar(elem->lista,nombreaux, fd, NULL);
+        return -1;
+      }
     }
     else{
       elem = elem->sig;

@@ -1,21 +1,25 @@
-/* Grupo
-	Oriana Gomez	09-10336
-	Iván Travecedo	08-11131
-*/
+/* Archivo: lista.c
+ * Autores: Oriana Gomez   09-10336
+ *          Ivan Travecedo 08-11131
+ * Descripcion: Implementacion de funciones para el manejo del
+ *              menu del servidor (para su arranque)
+ */
+
 
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sysexits.h>
 #include "menuschat.h"
+#include "lista.h"
 
-// menu
-	// puerto por defecto: 20336
-	// sala por defecto: chatroom
-
+// variables globales para puerto y sala
 int puerto;
 char *sala;
 
+/* Inicializa las variables globales recibidas desde consola
+ * en caso de error imprime un mensaje para el usuario
+ */
 void asignarParametros(char *param[], int tam) {
 
 	int p = 0;
@@ -52,6 +56,7 @@ void asignarParametros(char *param[], int tam) {
 
 }
 
+// Toma los datos de consola y llama a asignarParametros
 int menuschat(int argc, char *argv[]){
 
 	if(argc>5){

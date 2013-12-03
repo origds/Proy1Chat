@@ -1,14 +1,27 @@
+/* Archivo: lista.c
+ * Autores: Oriana Gomez   09-10336
+ *          Ivan Travecedo 08-11131
+ * Descripcion: Implementacion de funciones para el manejo 
+ *              del menu del cliente
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
 #include "menucchat.h"
 
+/* variables donde se guardara lo recibido 
+ * por linea de comandos
+ */
 char *IP;
 int puerto;
 char *user;
 char *archivo;
 
+/* Inicializa las variables globales recibidas desde consola
+ * en caso de error imprime un mensaje para el usuario
+ */
 char asignarParametros(char *param[], int tam) {
   int i;
   int h,p,n,a;
@@ -53,6 +66,7 @@ char asignarParametros(char *param[], int tam) {
   return (falto);
 }
 
+// Toma los datos de consola y llama a asignarParametros
 void menucchat(int argc, char *argv[])
 {
   if (argc>9) {

@@ -1,3 +1,12 @@
+/* Archivo: cchat.c
+ * Autores: Oriana Gomez   09-10336
+ *          Ivan Travecedo 08-11131
+ * Descripcion: Manejo del cliente para el chat
+ *
+ */
+
+
+
 #include <stdio.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -7,34 +16,42 @@
 #include <string.h>
 #include "menucchat.h"
 #include "manejarArchivo.h"
-/* netbd.h es necesitada por la estructura hostent ;-) */
+#include "lista.h"
 
+#define MAXDATASIZE 100  /*Tamano maximo definido para los mensajes */
 
-#define MAXDATASIZE 100   
-/* El número máximo de datos en bytes */
-
-int socketcliente;
+int socketcliente; /* Entero para el manejo del socket del cliente*/
 
 /* Definimos la estructura mensaje que sera enviada al servidor */
-
 typedef struct Mensaje {
     char *nombreuser;
     char *contenidoMensaje; 
   } Mensaje;
 
+
+/* Funcion: sizeofMensaje
+ * Descripcion: Retorna la suma de los tamanos del nombre
+ *              de usuario y el mensaje que este envia
+ * Parametro: Mensaje msj
+ * Return: Tamano de msj
+ */
 int sizeofMensaje(Mensaje msj) {
   int size;
   size = strlen(msj.nombreuser) + strlen(msj.contenidoMensaje);
   return size;
 }
 
-/* Definicion del procedimiento que manejara el socket de cliente */
+/* Funcion: conectarSocket
+ * Descripcion: obtiene la informacion del servidor, crea el
+ *              socket y devuelve el file descriptor para el
+ *              manejo del socket
+ * Retorna: file descriptor del socket
+ */
+int conectarSocket(){
 
-int conectarSocket(Mensaje mensaje) {
-
-  int socketfd; /* ficheros descriptores */
-  struct hostent *infoserver; /* estructura que recibirá información sobre el nodo remoto */
-  struct sockaddr_in servidor; /* información sobre la dirección del servidor */
+  int socketfd;
+  struct hostent *infoserver;
+  struct sockaddr_in servidor;
 
   if ((infoserver=gethostbyname(IP))==NULL) {
     printf("gethostbyname() error\n");
@@ -48,9 +65,7 @@ int conectarSocket(Mensaje mensaje) {
 
   servidor.sin_family = AF_INET;
   servidor.sin_port = htons(puerto);
-  /* htons() es necesaria nuevamente ;-o */
-  servidor.sin_addr = *((struct in_addr *)infoserver->h_addr);  
-  /*infoserver->h_addr pasa la información de ``*infoserver'' a "h_addr" */
+  servidor.sin_addr = *((struct in_addr *)infoserver->h_addr);
   bzero(&(servidor.sin_zero),8);
 
   if(connect(socketfd, (struct sockaddr *)&servidor, sizeof(struct sockaddr))==-1){ 
@@ -59,66 +74,126 @@ int conectarSocket(Mensaje mensaje) {
     exit(-1);
   }
 
-  printf("%d y %s\n", strlen(mensaje.nombreuser), mensaje.nombreuser);
-  if (send(socketfd,mensaje.nombreuser,sizeof(mensaje.nombreuser),0)==-1){
-    printf("No pudo enviarse el nombre de usuario al servidor\n\n");
-  }
-  
   return socketfd;
-
 }
 
-
-void enviarPeticion(int fd, Mensaje mensaje) {
-
-  int numbytes;
-  char buf[MAXDATASIZE]; /* en donde es almacenará el texto recibido */
-
-  printf("%d y %s \n", strlen(mensaje.contenidoMensaje), mensaje.contenidoMensaje);
-  if (send(fd,mensaje.contenidoMensaje,sizeof(mensaje.contenidoMensaje),0)==-1){
+/* Procedimiento: enviarPeticion
+ * Descripcion: Envia al servidor el nombre del usuario
+ *              y el comando que este ejecuta
+ * Parametros:
+ *            - int fd: Filedescriptor del socket donde se enviara
+ *                      la peticion
+ *            - Mensaje mensaje: Mensaje a enviar al servidor
+ */
+void enviarPeticion(int fd, Mensaje mensaje){
+  if (send(fd,mensaje.nombreuser,strlen(mensaje.nombreuser),0)==-1){
+    printf("No pudo enviarse el nombreuser al servidor\n");
+  }  
+  if (send(fd,mensaje.contenidoMensaje,strlen(mensaje.contenidoMensaje),0)==-1){
     printf("No pudo enviarse el mensaje al servidor\n");
-  } 
-
-  printf("FD %d\n", fd);
-  if ((numbytes=recv(fd,buf,MAXDATASIZE,0)) == -1){  
-    printf("Error en recv() de cliente\n\n");
-    exit(-1);
   }
-
-  buf[numbytes]='\0';
-
-  printf("Servidor: %s\n",buf);
-
 }
 
-void lectorArchivo(FILE * in, int bytes, Mensaje msj) {
 
+/* Procedimiento: lectorArchivo
+ * Descripcion: Lee un archivo y envia cada una de las peticiones
+ *              al servidor
+ * Parametros:
+ *            - FILE * in: Archivo de donde se obtendran las 
+ *                         instrucciones
+ *            - int bytes: Tamano del archivo
+ *            - char * user: Usuario que envia el archivo de 
+ *                           peticiones
+ *            - int fd: file descriptor del socket donde se enviaran
+ *                      las peticiones
+ */
+void lectorArchivo(FILE * in, int bytes,char * user, int fd) {
   char lineaTemporal[bytes];
+  Mensaje msj;
+  msj.contenidoMensaje =(char *)malloc(sizeof(char)*bytes);
+  msj.nombreuser =(char *)malloc(sizeof(char)*bytes);
+  bzero(msj.contenidoMensaje,bytes);
+  bzero(msj.nombreuser,bytes);
+  strcpy(msj.nombreuser, user);
 
   while (feof(in)==0){
-      fgets(lineaTemporal,bytes,in);
+    fgets(lineaTemporal,bytes,in);
 
-      if ((strcmp(lineaTemporal, "fue\n")==0) || (strcmp(lineaTemporal, "fue")==0)){
-        fue = 1;
-        bzero(msj.contenidoMensaje, sizeof(msj.contenidoMensaje));
-        strcpy(msj.contenidoMensaje, "fue ");
-        strcat(msj.contenidoMensaje, user);
-        //strcat(msj.contenidoMensaje, "\n");
-        printf("CONTENIDO MENSAJE %s\n", msj.contenidoMensaje);
-        //socketcliente = conectarSocket(msj);
-        enviarPeticion(socketcliente, msj);  
-        break;
-      }
-
-      strcpy(msj.contenidoMensaje,lineaTemporal);
-      //strcat(msj.contenidoMensaje, "\n");
-      //socketcliente = conectarSocket(msj);
-      enviarPeticion(socketcliente, msj);
+    if (strcmp(lineaTemporal, "fue\n")==0 || strcmp(lineaTemporal, "fue")==0){
+      fue = 1;
+      strcpy(msj.contenidoMensaje, "fue");
+      enviarPeticion(fd, msj);  
+      break;
+    }
+    strcpy(msj.contenidoMensaje,lineaTemporal);
+    enviarPeticion(fd, msj);
+    bzero(msj.contenidoMensaje, bytes);
+    usleep(1000000);
   }
-    
-    /*Cerramos in*/
-    fclose(in);
+  free(msj.contenidoMensaje);
+  free(msj.nombreuser);
+  fclose(in);
+}
 
+
+/* Procedimiento: recibirDeServidor
+ * Descripcion: Procedimiento que ejecuta el hilo dedicado a
+ *              escuchar lo que se recibe del servidor e
+ *              imprimir en pantalla
+ * Parametros:
+ *     - Elemento * elem: Elemento que tiene el fd de donde
+ *                        se recibira las respuesta del serv             
+ */
+void * recibirDeServidor(Elemento * elem){
+  char cmd[MAXDATASIZE];
+  int numbytes;
+
+  while(1) {
+    bzero(cmd, MAXDATASIZE);
+    if ((numbytes=recv(elem->fd,cmd,MAXDATASIZE,0)) == -1){  
+      printf("Error en recv()\n");
+      exit(-1);
+    }
+    if(strcmp(cmd,"fue")==0){
+      printf("\nCierre de sesion satisfactoria\n");
+      break;
+    }
+    else if(strcmp(cmd,"sus")==0){
+      printf("\nSuscripcion satisfactoria\n");
+    }
+    else if(strcmp(cmd,"suserror")==0){
+      printf("\nError en suscripcion\n");
+    }
+    else if(strcmp(cmd,"des")==0){
+      printf("\nDesuscripcion satisfactoria\n");
+    }
+    else if(strcmp(cmd,"deserror")==0){
+      printf("\nError en desuscripcion\n");
+    }
+    else if(strcmp(cmd,"cre")==0){
+      printf("\nCreacion de sala satisfactoria\n");
+    }
+    else if(strcmp(cmd,"creerror")==0){
+      printf("\nError creando sala\n");
+    }
+    else if(strcmp(cmd,"eli")==0){
+      printf("\nEliminacion de sala satisfactoria\n");
+    }
+    else if(strcmp(cmd,"elierror")==0){
+      printf("\nError eliminando sala\n");
+    }
+    else if(strcmp(cmd,"error")==0){
+      printf("\nComando invalido\n");
+    }
+    else if(strcmp(cmd,"elidefecto")==0){
+      printf("\nNo puede borrar la sala por defecto\n");
+    }    
+    else{
+      printf("%s\n", cmd);
+    }
+  }
+  close(elem->fd);
+  pthread_exit(NULL);
 }
 
 
@@ -131,56 +206,53 @@ int main(int argc, char *argv[]) {
   char comando[100];
   char resto[100];
   fue = 0;
+  pthread_t hiloEscucha;
+
 
   //Llamada al menu
   menucchat(argc, argv);
 
   msjcliente.nombreuser=(char *)malloc(sizeof(char*)*20);
-  strcpy(msjcliente.nombreuser,user);
   msjcliente.contenidoMensaje=(char *)malloc(sizeof(char*)*MAXDATASIZE);
+  
+  bzero(msjcliente.nombreuser,20);
+  bzero(msjcliente.contenidoMensaje, MAXDATASIZE);
+  bzero(comando,100);
 
-  /*Connect al servidor*/
+  strcpy(msjcliente.nombreuser,user);
 
-  socketcliente = conectarSocket(msjcliente);
-  printf("socketcliente %d\n", socketcliente);
-
+  socketcliente = conectarSocket();
+  Elemento * elem;
+  elem = (Elemento *)malloc(sizeof(Elemento));
+  elem->fd = socketcliente;
+  // Creamos un hilo dedicado solo a escuchar lo que manda el servidor e imprimir
+  if (pthread_create(&hiloEscucha, NULL, (void *)&recibirDeServidor,(void *)elem)){
+    printf("Error creacion hilo\n");
+  }
   // Si hay un archivo de comando es leido
   if (archivo!=NULL) {
     int tam = tamanoArchivo(archivo);
     file = abrirArchivo(archivo);
-    lectorArchivo(file, tam, msjcliente);
+    lectorArchivo(file, tam,msjcliente.nombreuser,socketcliente);
   }
-
+  // si no se encontro fue se pide por consola
   if (fue!=1) {
-    //Para leer comandos por consola
     while (1) {
-      printf("Escriba el comando que desea utilizar:\n");
       scanf("%s", comando);
       strcpy(msjcliente.contenidoMensaje,comando);
-      if (strcmp(comando,"men")==0 || strcmp(comando,"sus")==0 || strcmp(comando,"cre")==0 || strcmp(comando,"eli")==0){
+      if (strcmp(comando,"men")==0 || strcmp(comando,"sus")==0 || 
+        strcmp(comando,"cre")==0 || strcmp(comando,"eli")==0){
         strcat(msjcliente.contenidoMensaje,gets(resto));
       }
-      //strcat(msjcliente.contenidoMensaje, "\n");
-      printf("comando %s\n", msjcliente.contenidoMensaje);
-      if (strcmp(msjcliente.contenidoMensaje, "fue")==0) {
-        strcat(msjcliente.contenidoMensaje, " ");
-        strcat(msjcliente.contenidoMensaje, msjcliente.nombreuser);
-        //strcat(msjcliente.contenidoMensaje, "\n");
-        //socketcliente = conectarSocket(msjcliente);
+      else if (strcmp(comando, "fue")==0) {
         enviarPeticion(socketcliente, msjcliente);
-        close(socketcliente);
-        return(0);
-      } else {
-        //socketcliente = conectarSocket(msjcliente);
-        enviarPeticion(socketcliente, msjcliente);
-        continue;
+        break;
       }
+      enviarPeticion(socketcliente, msjcliente);
     }
-   
   }
-  
+  pthread_join(hiloEscucha,NULL); //esperamos que el hilo que escuche termine
   free(msjcliente.nombreuser);
   free(msjcliente.contenidoMensaje);
   return (0);
-
 }

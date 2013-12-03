@@ -1,4 +1,9 @@
-/* Decripcion de los procedimientos de menuschat*/
+/* Archivo: lista.c
+ * Autores: Oriana Gomez   09-10336
+ *          Ivan Travecedo 08-11131
+ * Descripcion: Decripcion de los procedimientos de menuschat
+ */
+
 
 extern int puerto;
 extern char *sala;

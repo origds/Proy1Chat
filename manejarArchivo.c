@@ -1,3 +1,11 @@
+/* Archivo: manejarArchivo.c
+ * Autores: Oriana Gomez   09-10336
+ *          Ivan Travecedo 08-11131
+ * Descripcion: Funciones para el manejo de archivo
+ */
+
+
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,6 +15,7 @@
 
 int fue = 0;
 
+/* Retorna el tamano de un archivo */
 int tamanoArchivo(char * archivo){
 	int bytes = 0;
 	FILE * in;
@@ -24,6 +33,7 @@ int tamanoArchivo(char * archivo){
 	return bytes;	
 }
 
+/* abre un archivo */
 FILE * abrirArchivo(char *nom){
 	FILE *in;
 
